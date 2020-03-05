@@ -36,7 +36,7 @@ Copy-Item -Path "./config/psft_customizations-win.yaml" -Destination "c:/vagrant
 Copy-Item -Path "./config/vagabond.json" -Destination "c:/vagrant/scripts/vagabond.json" 
 
 & ./powershell/banner.ps1
-& ./powershell/provision-download.ps1 -MOS_USERNAME "${MOS_USERNAME}" -MOS_PASSWORD "${MOS_PASSWORD}" -PATCH_ID "${MOS_PATCH_ID}" -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}"
+& ./powershell/provision-download.ps1 -MOS_USERNAME "$MOS_USERNAME" -MOS_PASSWORD "$MOS_PASSWORD" -PATCH_ID "$MOS_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID"
 & ./powershell/provision-bootstrap-ps.ps1 -PATCH_ID "${MOS_PATCH_ID}" -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet"
 & ./powershell/provision-yaml.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet"
 & ./powershell/provision-puppet-apply.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet"

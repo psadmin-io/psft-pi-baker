@@ -197,7 +197,7 @@ function create_authorization_cookie {
                     -UseBasicParsing `
                     -Body $AUTH_DATA | Out-Null
 
-  wget --secure-protocol=TLSv1 `
+  wget.exe --secure-protocol=TLSv1 `
        --save-cookies="${COOKIE_FILE}" `
        --keep-session-cookies `
        --no-check-certificate `
