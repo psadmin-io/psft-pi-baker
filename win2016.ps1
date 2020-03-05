@@ -30,6 +30,8 @@ $VerbosePreference = "SilentlyContinue"
 #-----------------------------------------------------------[Execution]-----------------------------------------------------------
 
 New-Item -ItemType directory -Path "c:/psft/dpk/downloads"
+New-Item -ItemType directory -Path "c:/vagrant/config"
+New-Item -ItemType directory -Path "c:/vagrant/scripts"
 Copy-Item -Path "./config/psft_customizations-win.yaml" -Destination "c:/vagrant/config/psft_customizations.yaml" 
 Copy-Item -Path "./config/vagabond.json" -Destination "c:/vagrant/scripts/vagabond.json" 
 
