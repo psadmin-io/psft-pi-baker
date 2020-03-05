@@ -24,11 +24,12 @@ $DebugPreference = "SilentlyContinue"
 $VerbosePreference = "SilentlyContinue"
 
 #-----------------------------------------------------------[Variables]-----------------------------------------------------------
+$log = c:\temp\psft-pi-baker.log
 
 #-----------------------------------------------------------[Functions]-----------------------------------------------------------
 Function log($msg) {
     $stamp = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")
-    Add-Content c:\temp\psft-pi-baker.log "[$stamp] $msg"
+    Add-Content $log "[$stamp] $msg"
 }
 Function info($msg) {
     log("INFO: $msg")
@@ -57,16 +58,16 @@ info("...done.")
 
 # Run provisoners
 info("banner")
-& ./powershell/banner.ps1
+& ./powershell/banner.ps1 > $log
 info("downnload")
-& ./powershell/provision-download.ps1 -MOS_USERNAME "$MOS_USERNAME" -MOS_PASSWORD "$MOS_PASSWORD" -PATCH_ID "$MOS_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID"
+& ./powershell/provision-download.ps1 -MOS_USERNAME "$MOS_USERNAME" -MOS_PASSWORD "$MOS_PASSWORD" -PATCH_ID "$MOS_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID" > $log
 info("bootstrap")
-& ./powershell/provision-bootstrap-ps.ps1 -PATCH_ID "${MOS_PATCH_ID}" -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet"
+& ./powershell/provision-bootstrap-ps.ps1 -PATCH_ID "${MOS_PATCH_ID}" -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" > $log
 info("yaml")
-& ./powershell/provision-yaml.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet"
+& ./powershell/provision-yaml.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" > $log
 info("puppet apply")
-& ./powershell/provision-puppet-apply.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet"
+& ./powershell/provision-puppet-apply.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_PATCH_ID}" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" > $log
 info("util")
-& ./powershell/provision-puppet-utilities.ps1
+& ./powershell/provision-puppet-utilities.ps1 > $log
 
 info("done done.")
