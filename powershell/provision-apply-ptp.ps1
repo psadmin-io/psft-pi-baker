@@ -64,10 +64,10 @@ function determine_tools_version() {
   $TOOLS_PATCH_VERSION = $TOOLS_VERSION.split(".")[2]
 
   if ($DEBUG -eq "true") {
-      Write-Host "Tools Version: ${TOOLS_VERSION}"
-      Write-Host "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
-      Write-Host "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
-      Write-Host "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
+      Write-Output "Tools Version: ${TOOLS_VERSION}"
+      Write-Output "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
+      Write-Output "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
+      Write-Output "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
   }
 }
 
@@ -78,19 +78,19 @@ function determine_puppet_home() {
        }
       "56" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
-        Write-Host "PeopleTools Patching for 8.56 is not supported yet."
+        Write-Output "PeopleTools Patching for 8.56 is not supported yet."
         exit
       }
       "57" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
-        Write-Host "PeopleTools Patching for 8.57 is not supported yet."
+        Write-Output "PeopleTools Patching for 8.57 is not supported yet."
         exit
      }
-      Default { Write-Host "PeopleTools version could not be determined in the bs-manifest file."}
+      Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
   }  
 
   if ($DEBUG -eq "true" ) {
-      Write-Host "Puppet Home Directory: ${PUPPET_HOME}"
+      Write-Output "Puppet Home Directory: ${PUPPET_HOME}"
   }
 }
 
@@ -138,8 +138,8 @@ PCH=${ps_home_location}
 REPLACE=N
 "@ 
   if ($DEBUG -eq "true") {
-    Write-Host "This is the template: ${template}"
-    Write-Host "Writing to location: ${file}"
+    Write-Output "This is the template: ${template}"
+    Write-Output "Writing to location: ${file}"
   }
   $template | out-file $file -Encoding ascii
 }
@@ -147,21 +147,21 @@ REPLACE=N
 function create_ca_environment() {
   $base = hiera peoplesoft_base
   $jdk = hiera jdk_location | Resolve-Path
-  Write-Host "[${computername}][Task] Configure Change Assistant"
+  Write-Output "[${computername}][Task] Configure Change Assistant"
   if (-Not (test-path "${base}\ca")) {
-    Write-Host "`tBuild CA output/stage folders"
+    Write-Output "`tBuild CA output/stage folders"
     mkdir $base\ca
     mkdir $base\ca\output
     mkdir $base\ca\stage
   }
 
-  Write-Host "`tSet permissions on the ps_home folder for the Administrators group"
+  Write-Output "`tSet permissions on the ps_home folder for the Administrators group"
   icacls "${ps_home_location}" /grant "Administrators:(OI)(CI)(M)" /T /C
 
   Set-Location $CA_PATH
   $env:JAVA_HOME="${jdk}"
   (Get-Content "${CA_PATH}\changeassistant.bat").replace('jre\bin\java -Xms512m -Xmx1g com.peoplesoft.pt.changeassistant.client.main.frmMain %*', 'jre\bin\java -Xms256m -Xmx512m com.peoplesoft.pt.changeassistant.client.main.frmMain %*') | Set-Content "${CA_PATH}\changeassistant.bat"
-  Write-Host "`tConfigure Change Assistant's General Options"
+  Write-Output "`tConfigure Change Assistant's General Options"
   # Configure CA
   & "${CA_PATH}\changeassistant.bat" -MODE UM `
       -ACTION OPTIONS `
@@ -177,16 +177,16 @@ function create_ca_environment() {
       -SQH "${sqlplus_location}\BIN\sqlplus.exe" `
       -EMYN N 
   
-  Write-Host "`tCreate an environment in Change Assistant"
+  Write-Output "`tCreate an environment in Change Assistant"
   # Create CA Environment
   & "${CA_PATH}\changeassistant.bat" -INI "${base}\ca.ini"
 
-  Write-Host "[${computername}][Done] Configure Change Assistant"
+  Write-Output "[${computername}][Done] Configure Change Assistant"
 }
 
 function patch_database (){
   # Apply PTP
-  Write-Host "[${computername}][Task] Apply the PeopleTools Patch to the Database"
+  Write-Output "[${computername}][Task] Apply the PeopleTools Patch to the Database"
   # Get the new Patch version to apply
   $dpk_home = hiera dpk_location
   $PTP_VERSION = ((get-content "${dpk_home}\pt-manifest" | select-string "^version").ToString() -split "=")[1] -replace "\.", ""
@@ -202,41 +202,41 @@ function patch_database (){
     -TGTENV PSFTDB `
     -UPD "PTP${PTP_VERSION}" 2>&1 | out-null
   }
-  Write-Host "[${computername}][Done] Apply the PeopleTools Patch to the Database"
+  Write-Output "[${computername}][Done] Apply the PeopleTools Patch to the Database"
 }
 
 function install_hiera_eyaml() {
 
   # Install Hiera-eyaml
   # -------------------
-  Write-Host "[${computername}][Task] Install Hiera-eyaml"
+  Write-Output "[${computername}][Task] Install Hiera-eyaml"
   copy-item c:\vagrant\scripts\RubyGemsRootCA.pem "C:\Program Files\Puppet Labs\Puppet\sys\ruby\lib\ruby\2.0.0\rubygems\ssl_certs\" -force
   $env:PATH += ";C:\Program Files\Puppet Labs\Puppet\sys\ruby\bin"
   gem install hiera-eyaml
-  Write-Host "[${computername}][Done] Install Hiera-eyaml" -ForegroundColor green
+  Write-Output "[${computername}][Done] Install Hiera-eyaml" -ForegroundColor green
 
   # Configure Hiera-eyaml
   # ---------------------
-  Write-Host "[${computername}][Task] Configure Hiera-eyaml"
+  Write-Output "[${computername}][Task] Configure Hiera-eyaml"
   # copy-item c:\vagrant\hiera.yaml C:\ProgramData\PuppetLabs\hiera\etc\hiera.yaml -force
   # copy-item c:\vagrant\eyaml.yaml C:\ProgramData\PuppetLabs\hiera\etc\eyaml.yaml -force
   [System.Environment]::SetEnvironmentVariable("EYAML_CONFIG", "C:\ProgramData\PuppetLabs\hiera\etc\eyaml.yaml", "Machine")
   if ( -not ( test-path C:\ProgramData\PuppetLabs\puppet\etc\secure\keys) ) { mkdir C:\ProgramData\PuppetLabs\puppet\etc\secure\keys }
   copy-item c:\vagrant\keys\* C:\ProgramData\PuppetLabs\puppet\etc\secure\keys\ -force
   # [System.Environment]::SetEnvironmentVariable("EDITOR", "C:\Program Files\Sublime Text 3\sublime_text.exe -n -w", "Machine")
-  Write-Host "[${computername}][Done] Configure Hiera-eyaml" -ForegroundColor green
+  Write-Output "[${computername}][Done] Configure Hiera-eyaml" -ForegroundColor green
 
 }
 
 function deploy_patched_domains() {
-  Write-Host "[${computername}][Task] Deploy patched domains"
+  Write-Output "[${computername}][Task] Deploy patched domains"
   # (Get-Content "${PUPPET_HOME}\manifests\site.pp") -replace 'include.*', "include ::pt_role::pt_tools_midtier" | Set-Content "${PUPPET_HOME}\manifests\site.pp"
   if ($DEBUG -eq "true") {
     puppet apply "${PUPPET_HOME}\manifests\site.pp" --trace --debug
   } else {
     puppet apply "${PUPPET_HOME}\manifests\site.pp" 2>&1 | out-null 
   }
-  Write-Host "[${computername}][Done] Deploy patched domains"
+  Write-Output "[${computername}][Done] Deploy patched domains"
 }
 
 # . change_to_midtier

@@ -1,20 +1,55 @@
-function echobanner {
+function echobanner-output{
+  Write-Output "######################################################"
+  Write-Output "                ... psft-pi-baker ...                 "
+  Write-Output "######################################################"
+}
+
+function echobanner-host {
   Write-Host "`n`n"
-  Write-Host "                                      dP                               dP         " -foregroundcolor Blue
-  Write-Host "                                      88                               88         " -foregroundcolor Blue
-  Write-Host "  dP   .dP .d8888b. .d8888b. .d8888b. 88d888b. .d8888b. 88d888b. .d888b88         " -foregroundcolor Blue
-  Write-Host "  88   d8' 88'  \`88 88'  \`88 88'  \`88 88'  \`88 88'  \`88 88'  \`88 88'  \`88  " -foregroundcolor Blue
-  Write-Host "  88 .88'  88.  .88 88.  .88 88.  .88 88.  .88 88.  .88 88    88 88.  .88         " -foregroundcolor Blue
-  Write-Host "  8888P'   \`88888P8 \`8888P88 \`88888P8 88Y8888' \`88888P' dP    dP \`88888P8    " -foregroundcolor Blue
-  Write-Host "                         .88                                                      " -foregroundcolor Blue
-  Write-Host "                     d8888P                                                       " -foregroundcolor Blue
+  Write-Host "  ,---.    .---. ,---. _______                          " -foregroundcolor DarkRed
+  Write-Host "  | .-.\  ( .-._)| .-'|__   __|                         " -foregroundcolor DarkRed
+  Write-Host "  | |-' )(_) \   | ``-.  )| |                            " -foregroundcolor DarkRed
+  Write-Host "  | |--' _  \ \  | .-' (_) |     " -foregroundcolor DarkRed -NoNewline; Write-Host " )" -foregroundcolor DarkYellow
+  Write-Host "  | |   ( ``-'  ) | |     | |    " -foregroundcolor DarkRed -NoNewline; Write-Host " (                   " -foregroundcolor DarkYellow
+  Write-Host "  /(     ``----'  )\|     ``-'   " -foregroundcolor DarkRed -NoNewline; Write-Host "   )                   " -foregroundcolor DarkYellow
+  Write-Host " (__)           (__)             " -foregroundcolor DarkRed -NoNewline; Write-Host "(                   " -foregroundcolor DarkYellow
+  Write-Host "                                  )                      " -foregroundcolor DarkYellow 
+  Write-Host "       ,---.  ,-.                " -foregroundcolor DarkRed -NoNewline; Write-Host "(                      " -foregroundcolor DarkYellow 
+  Write-Host "       | .-.\ |(|           " -foregroundcolor DarkRed -NoNewline; Write-Host "__..---..__                         " -foregroundcolor DarkYellow 
+  Write-Host "       | |-' )(_)       " -foregroundcolor DarkRed -NoNewline; Write-Host ",-='  /  |  \  ``=-.                        " -foregroundcolor DarkYellow
+  Write-Host "       | |--' | |      " -foregroundcolor DarkRed -NoNewline; Write-Host ":--..___________..--;                               " -foregroundcolor DarkYellow
+  Write-Host "       | |    | |       " -foregroundcolor DarkRed -NoNewline; Write-Host "\.,_____________,./" -foregroundcolor DarkYellow
+  Write-Host "       /(     ``-'                                       " -foregroundcolor DarkRed
+  Write-Host "      (__)                                         " -foregroundcolor DarkRed
+  Write-Host "              ,---.     .--.  ,-. .-.,---.  ,---.      " -foregroundcolor DarkRed
+  Write-Host "              | .-.\   / /\ \ | |/ / | .-'  | .-.\     " -foregroundcolor DarkRed
+  Write-Host "              | |-' \ / /__\ \| | /  | ``-.  | ``-'/     " -foregroundcolor DarkRed
+  Write-Host "              | |--. \|  __  || | \  | .-'  |   (      " -foregroundcolor DarkRed
+  Write-Host "              | |``-' /| |  |)|| |) \ |  ``--.| |\ \     " -foregroundcolor DarkRed
+  Write-Host "              /( ``--' |_|  (_)|((_)-'/( __.'|_| \)\    " -foregroundcolor DarkRed
+  Write-Host "             (__)             (_)   (__)        (__)   " -foregroundcolor DarkRed
+  
+  
+  # Write-Host "             (               " -foregroundcolor DarkYellow
+  # Write-Host "              )              " -foregroundcolor DarkYellow
+  # Write-Host "             (               " -foregroundcolor DarkYellow
+  # Write-Host "              )              " -foregroundcolor DarkYellow
+  # Write-Host "         __..---..__         " -foregroundcolor DarkYellow
+  # Write-Host "     ,-='  /  |  \  `=-.     " -foregroundcolor DarkYellow
+  # Write-Host "    :--..___________..--;    " -foregroundcolor DarkYellow
+  # Write-Host "     \.,_____________,./     " -foregroundcolor DarkYellow
   Write-Host "`n`n"
 }
+
+
+
+
 
 function install_powershell () {
   (Invoke-Expression ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')))
   C:\ProgramData\chocolatey\bin\choco.exe install powershell -y
   Restart-Computer
 }
-. echobanner
+. echobanner-host
+. echobanner-output
 # . install_powershell

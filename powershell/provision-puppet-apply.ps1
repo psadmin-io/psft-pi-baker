@@ -53,10 +53,10 @@ function determine_tools_version() {
   $TOOLS_PATCH_VERSION = $TOOLS_VERSION.split(".")[2]
 
   if ($DEBUG -eq "true") {
-      Write-Host "Tools Version: ${TOOLS_VERSION}"
-      Write-Host "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
-      Write-Host "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
-      Write-Host "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
+      Write-Output "Tools Version: ${TOOLS_VERSION}"
+      Write-Output "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
+      Write-Output "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
+      Write-Output "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
   }
 }
 
@@ -71,17 +71,17 @@ function determine_puppet_home() {
       "57" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
       }
-      Default { Write-Host "PeopleTools version could not be determined in the bs-manifest file."}
+      Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
   }  
 
   if ($DEBUG -eq "true" ) {
-      Write-Host "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
-      Write-Host "Puppet Home Directory: ${PUPPET_HOME}"
+      Write-Output "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
+      Write-Output "Puppet Home Directory: ${PUPPET_HOME}"
   }
 }
 
 function execute_puppet_apply() {
-  Write-Host "Applying Puppet manifests"
+  Write-Output "Applying Puppet manifests"
   # Reset Environment and PATH to include bin\puppet
   $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
@@ -126,4 +126,4 @@ function execute_puppet_apply() {
 # $port = hiera pia_http_port
 # $sitename = hiera pia_site_name
 
-# Write-Host "Your login URL is http://${fqdn}:${port}/${sitename}/signon.html" -ForegroundColor White
+# Write-Output "Your login URL is http://${fqdn}:${port}/${sitename}/signon.html" -ForegroundColor White

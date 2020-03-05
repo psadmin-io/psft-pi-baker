@@ -52,10 +52,10 @@ function determine_tools_version() {
   $TOOLS_PATCH_VERSION = $TOOLS_VERSION.split(".")[2]
 
   if ($DEBUG -eq "true") {
-      Write-Host "Tools Version: ${TOOLS_VERSION}"
-      Write-Host "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
-      Write-Host "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
-      Write-Host "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
+      Write-Output "Tools Version: ${TOOLS_VERSION}"
+      Write-Output "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
+      Write-Output "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
+      Write-Output "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
   }
 }
 
@@ -70,7 +70,7 @@ function determine_puppet_home() {
       "57" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
       }
-      Default { Write-Host "PeopleTools version could not be determined in the bs-manifest file."}
+      Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
   }  
 
   if (!(Test-Path $PUPPET_HOME)) {
@@ -78,19 +78,19 @@ function determine_puppet_home() {
   }
 
   if ($DEBUG -eq "true" ) {
-      Write-Host "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
-      Write-Host "Puppet Home Directory: ${PUPPET_HOME}"
+      Write-Output "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
+      Write-Output "Puppet Home Directory: ${PUPPET_HOME}"
   }
 }
 function copy_customizations_file() {
-  Write-Host "Copying customizations file"
+  Write-Output "Copying customizations file"
   switch ($TOOLS_MINOR_VERSION) {
     "57" {
       if (!(Test-Path $PUPPET_HOME\production\data)) {
         New-Item -ItemType directory -Path $PUPPET_HOME\production\data
       }
       if ($DEBUG -eq "true") {
-        Write-Host "Copying to ${PUPPET_HOME}\production\data"
+        Write-Output "Copying to ${PUPPET_HOME}\production\data"
         Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force
       } else {
         Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force 2>&1 | out-null
@@ -101,7 +101,7 @@ function copy_customizations_file() {
           New-Item -ItemType directory -Path $PUPPET_HOME\production\data
         }
       if ($DEBUG -eq "true") {
-        Write-Host "Copying to ${PUPPET_HOME}\production\data"
+        Write-Output "Copying to ${PUPPET_HOME}\production\data"
         Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force
       } else {
         Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force 2>&1 | out-null
@@ -112,7 +112,7 @@ function copy_customizations_file() {
           New-Item -ItemType directory -Path $PUPPET_HOME\data
         }
       if ($DEBUG -eq "true") {
-        Write-Host "Copying to ${PUPPET_HOME}\data"
+        Write-Output "Copying to ${PUPPET_HOME}\data"
         Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\data\psft_customizations.yaml" -Force
       } else {
         Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\data\psft_customizations.yaml" -Force 2>&1 | out-null
@@ -127,11 +127,11 @@ function copy_customizations_file() {
 . determine_puppet_home
 . copy_customizations_file
 
-Write-Host "YAML Sync Complete"
+Write-Output "YAML Sync Complete"
 
 # $fqdn = facter fqdn
 # $port = hiera pia_http_port
 # $sitename = hiera pia_site_name
 
-# Write-Host "Your login URL is http://${fqdn}:${port}/${sitename}/signon.html" -ForegroundColor White
+# Write-Output "Your login URL is http://${fqdn}:${port}/${sitename}/signon.html" -ForegroundColor White
 

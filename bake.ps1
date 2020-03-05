@@ -24,7 +24,7 @@ $DebugPreference = "SilentlyContinue"
 $VerbosePreference = "SilentlyContinue"
 
 #-----------------------------------------------------------[Variables]-----------------------------------------------------------
-$log = c:\temp\psft-pi-baker.log
+$log = "c:\temp\psft-pi-baker.log"
 
 #-----------------------------------------------------------[Functions]-----------------------------------------------------------
 Function log($msg) {
@@ -52,8 +52,8 @@ info("Setting up file structure...")
 New-Item -ItemType directory -Path "c:/psft/dpk/downloads"
 New-Item -ItemType directory -Path "c:/vagrant/config"
 New-Item -ItemType directory -Path "c:/vagrant/scripts"
-Copy-Item -Path "./config/psft_customizations-win.yaml" -Destination "c:/vagrant/config/psft_customizations.yaml" 
-Copy-Item -Path "./config/vagabond.json" -Destination "c:/vagrant/scripts/vagabond.json" 
+Copy-Item -Path "./files/psft_customizations-win.yaml" -Destination "c:/vagrant/config/psft_customizations.yaml" 
+Copy-Item -Path "./files/vagabond.json" -Destination "c:/vagrant/scripts/vagabond.json" 
 info("...done.")
 
 # Run provisoners

@@ -60,10 +60,10 @@ function determine_tools_version() {
     $TOOLS_PATCH_VERSION = $TOOLS_VERSION.split(".")[2]
 
     if ($DEBUG -eq "true") {
-        Write-Host "Tools Version: ${TOOLS_VERSION}"
-        Write-Host "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
-        Write-Host "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
-        Write-Host "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
+        Write-Output "Tools Version: ${TOOLS_VERSION}"
+        Write-Output "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
+        Write-Output "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
+        Write-Output "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
     }
 }
 
@@ -78,11 +78,11 @@ function determine_puppet_home() {
         "57" {
             $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
         }
-        Default { Write-Host "PeopleTools version could not be determined in the bs-manifest file."}
+        Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
     }  
 
     if ($DEBUG -eq "true" ) {
-        Write-Host "Puppet Home Directory: ${PUPPET_HOME}"
+        Write-Output "Puppet Home Directory: ${PUPPET_HOME}"
     }
 }
 
@@ -107,20 +107,20 @@ gw_user_pwd = "password"
 "@ 
 
     if ($DEBUG -eq "true") {
-        Write-Host "Response File Template: ${template}"
-        Write-Host "Writing to location: ${file}"
+        Write-Output "Response File Template: ${template}"
+        Write-Output "Writing to location: ${file}"
     }
     $template | out-file $file -Encoding ascii
 }
 function execute_psft_dpk_setup() {
 
   # $begin=$(get-date)
-  Write-Host "Executing DPK setup script"
-  Write-Host "DPK INSTALL: ${DPK_INSTALL}"
+  Write-Output "Executing DPK setup script"
+  Write-Output "DPK INSTALL: ${DPK_INSTALL}"
 
   switch ($TOOLS_MINOR_VERSION) {
     "57" {
-        Write-Host "Running PeopleTools 8.57 Bootstrap Script"
+        Write-Output "Running PeopleTools 8.57 Bootstrap Script"
         if ($DEBUG -eq "true") {
             . "${DPK_INSTALL}/setup/psft-dpk-setup.bat" `
             --silent `
@@ -136,7 +136,7 @@ function execute_psft_dpk_setup() {
         }
     } 
     "56" {
-        Write-Host "Running PeopleTools 8.56 Bootstrap Script"
+        Write-Output "Running PeopleTools 8.56 Bootstrap Script"
         if ($DEBUG -eq "true") {
             . "${DPK_INSTALL}/setup/psft-dpk-setup.bat" `
             --silent `

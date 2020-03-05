@@ -62,10 +62,10 @@ function determine_tools_version() {
   $TOOLS_PATCH_VERSION = $TOOLS_VERSION.split(".")[2]
 
   if ($DEBUG -eq "true") {
-      Write-Host "Tools Version: ${TOOLS_VERSION}"
-      Write-Host "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
-      Write-Host "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
-      Write-Host "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
+      Write-Output "Tools Version: ${TOOLS_VERSION}"
+      Write-Output "Tools Major Version: ${TOOLS_MAJOR_VERSION}"
+      Write-Output "Tools Minor Version: ${TOOLS_MINOR_VERSION}"
+      Write-Output "Tools Patch Version: ${TOOLS_PATCH_VERSION}"
   }
 }
 
@@ -76,19 +76,19 @@ function determine_puppet_home() {
       }
       "56" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
-        Write-Host "PeopleTools Patching for 8.56 is not supported yet."
+        Write-Output "PeopleTools Patching for 8.56 is not supported yet."
         exit
       }
       "57" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
-        Write-Host "PeopleTools Patching for 8.57 is not supported yet."
+        Write-Output "PeopleTools Patching for 8.57 is not supported yet."
         exit
       }
-      Default { Write-Host "PeopleTools version could not be determined in the bs-manifest file."}
+      Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
   }  
 
   if ($DEBUG -eq "true" ) {
-      Write-Host "Puppet Home Directory: ${PUPPET_HOME}"
+      Write-Output "Puppet Home Directory: ${PUPPET_HOME}"
   }
 }
 
@@ -113,8 +113,8 @@ gw_user_pwd = "password"
 "@ 
 
   if ($DEBUG -eq "true") {
-      Write-Host "Response File Template: ${template}"
-      Write-Host "Writing to location: ${file}"
+      Write-Output "Response File Template: ${template}"
+      Write-Output "Writing to location: ${file}"
   }
   $template | out-file $file -Encoding ascii
 }
@@ -127,7 +127,7 @@ psft_base_dir="${PSFT_BASE_DIR}"
 }
 
 function change_to_midtier() {
-  Write-Host "[${computername}][Task] Change env_type to 'midtier'"
+  Write-Output "[${computername}][Task] Change env_type to 'midtier'"
   switch ($TOOLS_MINOR_VERSION) {
     "57" {
       (Get-Content "${PUPPET_HOME}\production\data\defaults.yaml").replace("env_type: fulltier", "env_type: midtier") | Set-Content "${PUPPET_HOME}\production\data\defaults.yaml"
@@ -145,12 +145,12 @@ function change_to_midtier() {
     }
   }
   
-  Write-Host "[${computername}][Done] Change env_type to 'midtier'"
+  Write-Output "[${computername}][Done] Change env_type to 'midtier'"
 }
 
 function execute_dpk_cleanup() {
-  Write-Host "[${computername}][Task] Run the DPK cleanup script"
-  Write-Host "DPK INSTALL: ${DPK_INSTALL}"
+  Write-Output "[${computername}][Task] Run the DPK cleanup script"
+  Write-Output "DPK INSTALL: ${DPK_INSTALL}"
 
   Stop-Service psft* -ErrorAction SilentlyContinue
   if (get-process -name rmiregistry -ErrorAction SilentlyContinue) {
@@ -166,7 +166,7 @@ function execute_dpk_cleanup() {
     move-item "C:\Program Files\Git\usr\bin\id.exe" "C:\Program Files\Git\usr\bin\_id.exe"
   }
 
-  Write-Host "Running the Bootstrap Cleanup Script"
+  Write-Output "Running the Bootstrap Cleanup Script"
   switch ($TOOLS_MINOR_VERSION) {
     "57" {
       if ($DEBUG -eq "true") {
@@ -207,14 +207,14 @@ function execute_dpk_cleanup() {
     }
   }
 
-  Write-Host "[${computername}][Done] Run the DPK cleanup script"
+  Write-Output "[${computername}][Done] Run the DPK cleanup script"
 }
 
 function execute_psft_dpk_setup() {
 
   # $begin=$(get-date)
-  Write-Host "[${computername}][Task] Executing PeopleTools Patch DPK setup script"
-  Write-Host "PTP INSTALL: ${PTP_INSTALL}"
+  Write-Output "[${computername}][Task] Executing PeopleTools Patch DPK setup script"
+  Write-Output "PTP INSTALL: ${PTP_INSTALL}"
   
   # $cfg_home = hiera ps_config_home
   # if (test-path $cfg_home) {
@@ -223,7 +223,7 @@ function execute_psft_dpk_setup() {
 
   switch ($TOOLS_MINOR_VERSION) {
     "57" {
-      Write-Host "Running PeopleTools 8.57 Bootstrap Script"
+      Write-Output "Running PeopleTools 8.57 Bootstrap Script"
       if ($DEBUG -eq "true") {
           . "${PTP_INSTALL}/setup/psft-dpk-setup.bat" `
           --env_type midtier `
@@ -241,7 +241,7 @@ function execute_psft_dpk_setup() {
       }
     } 
     "56" {
-      Write-Host "Running PeopleTools 8.56 Bootstrap Script"
+      Write-Output "Running PeopleTools 8.56 Bootstrap Script"
       if ($DEBUG -eq "true") {
           . "${PTP_INSTALL}/setup/psft-dpk-setup.bat" `
           --env_type midtier `
@@ -276,10 +276,10 @@ function execute_psft_dpk_setup() {
       }
     }
   }
-  # Write-Host "`tUpdate env:PS_HOME to the new location"
+  # Write-Output "`tUpdate env:PS_HOME to the new location"
   # [System.Environment]::SetEnvironmentVariable('PS_HOME', "$(hiera ps_home_location)", 'Machine');
-  # Write-Host "`t`tPS_HOME: $(hiera ps_home_location)"
-  Write-Host "[${computername}][Done] Executing PeopleTools Patch DPK setup script"
+  # Write-Output "`t`tPS_HOME: $(hiera ps_home_location)"
+  Write-Output "[${computername}][Done] Executing PeopleTools Patch DPK setup script"
 }
 
 . determine_tools_version
