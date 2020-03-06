@@ -8,7 +8,7 @@
     .DESCRIPTION
         todo
     .EXAMPLE
-        provision-utilities.ps1 
+       TODO
 #>
 
 [CmdletBinding(DefaultParameterSetName="Help")]
@@ -73,7 +73,7 @@ Process {
     info("puppet apply")
     & ./powershell/provision-puppet-apply.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
     info("util")
-    & ./powershell/provision-puppet-utilities.ps1 >> $log
+    & ./powershell/provision-utilities.ps1 >> $log
 
     info("done done.")
 }
