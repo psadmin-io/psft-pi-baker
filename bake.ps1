@@ -50,7 +50,8 @@ Begin {
 Process {
     # Setup file structure
     Try {        
-        info("Setting up file structure.")
+        info("Setting up file structure.")        
+        New-Item -ItemType directory -Path "c:/psft/cfg" -Force
         New-Item -ItemType directory -Path "c:/psft/dpk/downloads" -Force
         New-Item -ItemType directory -Path "c:/vagrant/config" -Force
         New-Item -ItemType directory -Path "c:/vagrant/scripts" -Force
