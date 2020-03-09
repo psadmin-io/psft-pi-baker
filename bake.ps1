@@ -18,7 +18,8 @@ Param(
 #    [Parameter (Mandatory=$false, ParameterSetName="Help")] [switch] $Help
     [String]$MOS_USERNAME = $env:MOS_USERNAME,
     [String]$MOS_PASSWORD = $env:MOS_PASSWORD, # TODO secure string
-    [String]$MOS_PATCH_ID = $env:MOS_PATCH_ID
+    [String]$PI_PATCH_ID = $env:PI_PATCH_ID, 
+    [String]$ELK_PATCH_ID = $env:ELK_PATCH_ID
 )
 
 Begin {
@@ -66,13 +67,13 @@ Process {
     info("banner")
     & ./powershell/banner.ps1 >> $log
     info("download")
-    & ./powershell/provision-download.ps1 -MOS_USERNAME "$MOS_USERNAME" -MOS_PASSWORD "$MOS_PASSWORD" -PATCH_ID "$MOS_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID" >> $log
+    & ./powershell/provision-download.ps1 -MOS_USERNAME "$MOS_USERNAME" -MOS_PASSWORD "$MOS_PASSWORD" -PATCH_ID "$PI_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" >> $log
     info("bootstrap")
-    & ./powershell/provision-bootstrap-ps.ps1 -PATCH_ID "$MOS_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
+    & ./powershell/provision-bootstrap-ps.ps1 -PATCH_ID "$PI_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
     info("yaml")
-    & ./powershell/provision-yaml.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
+    & ./powershell/provision-yaml.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
     info("puppet apply")
-    & ./powershell/provision-puppet-apply.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
+    & ./powershell/provision-puppet-apply.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
     info("util")
     & ./powershell/provision-utilities.ps1 >> $log
 
