@@ -69,13 +69,13 @@ function determine_tools_version() {
 
 function determine_puppet_home() {
     switch ($TOOLS_MINOR_VERSION) {
-        "55" { 
-            $PUPPET_HOME = "C:\ProgramData\PuppetLabs\puppet\etc"
-        }
         "56" {
             $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
         }
         "57" {
+            $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
+        }
+        "58" {
             $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
         }
         Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
@@ -119,6 +119,22 @@ function execute_psft_dpk_setup() {
   Write-Output "DPK INSTALL: ${DPK_INSTALL}"
 
   switch ($TOOLS_MINOR_VERSION) {
+    "58" {
+        Write-Output "Running PeopleTools 8.58 Bootstrap Script"
+        if ($DEBUG -eq "true") {
+            . "${DPK_INSTALL}/setup/psft-dpk-setup.bat" `
+            --silent `
+            --dpk_src_dir "${DPK_INSTALL}" `
+            --response_file "${DPK_INSTALL}/response.cfg" `
+            --no_puppet_run
+        } else {
+            . "${DPK_INSTALL}/setup/psft-dpk-setup.bat" `
+            --dpk_src_dir ${DPK_INSTALL} `
+            --silent `
+            --response_file "${DPK_INSTALL}/response.cfg" `
+            --no_puppet_run 2>&1 | out-null
+        }
+    } 
     "57" {
         Write-Output "Running PeopleTools 8.57 Bootstrap Script"
         if ($DEBUG -eq "true") {
@@ -149,19 +165,6 @@ function execute_psft_dpk_setup() {
             --silent `
             --response_file "${DPK_INSTALL}/response.cfg" `
             --no_puppet_run 2>&1 | out-null
-        }
-    } 
-    "55" {
-        if ($DEBUG -eq "true") {
-            . "${DPK_INSTALL}/setup/psft-dpk-setup.ps1" `
-            -dpk_src_dir=$(resolve-path $DPK_INSTALL).path `
-            -silent `
-            -no_env_setup
-        } else {
-            . "${DPK_INSTALL}/setup/psft-dpk-setup.ps1" `
-            -dpk_src_dir=$(resolve-path $DPK_INSTALL).path `
-            -silent `
-            -no_env_setup 2>&1 | out-null
         }
     }
   } # end switch
