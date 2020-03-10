@@ -62,13 +62,13 @@ function determine_tools_version() {
 
 function determine_puppet_home() {
   switch ($TOOLS_MINOR_VERSION) {
-      "55" { 
-        $PUPPET_HOME = "C:\ProgramData\PuppetLabs\puppet\etc"
-      }
       "56" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
       }
       "57" {
+        $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
+      }
+      "58" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
       }
       Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
@@ -86,6 +86,15 @@ function execute_puppet_apply() {
   $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
   switch ($TOOLS_MINOR_VERSION) {
+    "58" {
+      if ($DEBUG -eq "true") {
+        . refreshenv
+        puppet apply "${PUPPET_HOME}\production\manifests\site.pp" --confdir="${PUPPET_HOME}" --trace --debug
+      } else {
+        . refreshenv | out-null
+        puppet apply "${PUPPET_HOME}\production\manifests\site.pp" 2>&1 | out-null
+      }
+    }
     "57" {
       if ($DEBUG -eq "true") {
         . refreshenv
@@ -102,15 +111,6 @@ function execute_puppet_apply() {
       } else {
         . refreshenv | out-null
         puppet apply "${PUPPET_HOME}\production\manifests\site.pp" 2>&1 | out-null
-      }
-    }
-    "55" {
-      if ($DEBUG -eq "true") {
-        . refreshenv
-        puppet apply "${PUPPET_HOME}\manifests\site.pp" --trace --debug
-      } else {
-        . refreshenv | out-null
-        puppet apply "${PUPPET_HOME}\manifests\site.pp" 2>&1 | out-null
       }
     }
   } # end switch

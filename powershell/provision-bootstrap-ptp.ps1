@@ -71,15 +71,17 @@ function determine_tools_version() {
 
 function determine_puppet_home() {
   switch ($TOOLS_MINOR_VERSION) {
-      "55" { 
-          $PUPPET_HOME = "C:\ProgramData\PuppetLabs\puppet\etc"
-      }
       "56" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
         Write-Output "PeopleTools Patching for 8.56 is not supported yet."
         exit
       }
       "57" {
+        $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
+        Write-Output "PeopleTools Patching for 8.57 is not supported yet."
+        exit
+      }
+      "58" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
         Write-Output "PeopleTools Patching for 8.57 is not supported yet."
         exit
@@ -129,6 +131,11 @@ psft_base_dir="${PSFT_BASE_DIR}"
 function change_to_midtier() {
   Write-Output "[${computername}][Task] Change env_type to 'midtier'"
   switch ($TOOLS_MINOR_VERSION) {
+    "58" {
+      (Get-Content "${PUPPET_HOME}\production\data\defaults.yaml").replace("env_type: fulltier", "env_type: midtier") | Set-Content "${PUPPET_HOME}\production\data\defaults.yaml"
+      (Get-Content "${PUPPET_HOME}\production\manifests\site.pp") -replace 'include.*', "include ::pt_role::pt_tools_deployment" | Set-Content "${PUPPET_HOME}\production\manifests\site.pp"
+
+    }
     "57" {
       (Get-Content "${PUPPET_HOME}\production\data\defaults.yaml").replace("env_type: fulltier", "env_type: midtier") | Set-Content "${PUPPET_HOME}\production\data\defaults.yaml"
       (Get-Content "${PUPPET_HOME}\production\manifests\site.pp") -replace 'include.*', "include ::pt_role::pt_tools_deployment" | Set-Content "${PUPPET_HOME}\production\manifests\site.pp"
@@ -138,10 +145,6 @@ function change_to_midtier() {
       (Get-Content "${PUPPET_HOME}\production\data\defaults.yaml").replace("env_type: fulltier", "env_type: midtier") | Set-Content "${PUPPET_HOME}\production\data\defaults.yaml"
       (Get-Content "${PUPPET_HOME}\production\manifests\site.pp") -replace 'include.*', "include ::pt_role::pt_tools_deployment" | Set-Content "${PUPPET_HOME}\production\manifests\site.pp"
 
-    }
-    "55" {
-      (Get-Content "${PUPPET_HOME}\data\defaults.yaml").replace("env_type: fulltier", "env_type: midtier") | Set-Content "${PUPPET_HOME}\data\defaults.yaml"
-      (Get-Content "${PUPPET_HOME}\manifests\site.pp") -replace 'include.*', "include ::pt_role::pt_tools_deployment" | Set-Content "${PUPPET_HOME}\manifests\site.pp"
     }
   }
   
@@ -168,6 +171,19 @@ function execute_dpk_cleanup() {
 
   Write-Output "Running the Bootstrap Cleanup Script"
   switch ($TOOLS_MINOR_VERSION) {
+    "58" {
+      if ($DEBUG -eq "true") {
+          . "${PTP_INSTALL}/setup/psft-dpk-setup.bat" `
+          --cleanup `
+          --silent `
+          --response_file "${PTP_INSTALL}/response.cfg"
+      } else {
+          . "${PTP_INSTALL}/setup/psft-dpk-setup.bat" `
+          --cleanup `
+          --silent `
+          --response_file "${PTP_INSTALL}/response.cfg" 2>&1 | out-null
+      }
+    } 
     "57" {
       if ($DEBUG -eq "true") {
           . "${PTP_INSTALL}/setup/psft-dpk-setup.bat" `
@@ -194,17 +210,6 @@ function execute_dpk_cleanup() {
           --response_file "${PTP_INSTALL}/response.cfg" 2>&1 | out-null
       }
     } 
-    "55" {
-      if ($DEBUG -eq "true") {
-        . "${PTP_INSTALL}/setup/psft-dpk-setup.ps1" `
-          -cleanup `
-          -ErrorAction SilentlyContinue
-      } else {
-        . "${PTP_INSTALL}/setup/psft-dpk-setup.ps1" `
-          -cleanup `
-          -ErrorAction SilentlyContinue 2>&1 | out-null
-      }
-    }
   }
 
   Write-Output "[${computername}][Done] Run the DPK cleanup script"
@@ -222,6 +227,24 @@ function execute_psft_dpk_setup() {
   # }
 
   switch ($TOOLS_MINOR_VERSION) {
+    "58" {
+      Write-Output "Running PeopleTools 8.57 Bootstrap Script"
+      if ($DEBUG -eq "true") {
+          . "${PTP_INSTALL}/setup/psft-dpk-setup.bat" `
+          --env_type midtier `
+          --deploy_only `
+          --response_file "${PTP_INSTALL}/response.cfg" `
+          --dpk_src_dir "${PTP_INSTALL}" `
+          --no_puppet_run
+      } else {
+          . "${PTP_INSTALL}/setup/psft-dpk-setup.bat" `
+          --env_type midtier `
+          --deploy_only `
+          --response_file "${PTP_INSTALL}/response.cfg" `
+          --dpk_src_dir ${PTP_INSTALL} `
+          --no_puppet_run 2>&1 | out-null
+      }
+    } 
     "57" {
       Write-Output "Running PeopleTools 8.57 Bootstrap Script"
       if ($DEBUG -eq "true") {
@@ -258,23 +281,6 @@ function execute_psft_dpk_setup() {
           --no_puppet_run 2>&1 | out-null
       }
     } 
-    "55" {
-      if ($DEBUG -eq "true") {
-        . "${PTP_INSTALL}/setup/psft-dpk-setup.ps1" `
-          -dpk_src_dir=$(resolve-path $PTP_INSTALL).path `
-          -env_type midtier `
-          -deploy_only `
-          -silent `
-          -ErrorAction SilentlyContinue
-      } else {
-        . "${PTP_INSTALL}/setup/psft-dpk-setup.ps1" `
-          -dpk_src_dir=$(resolve-path $PTP_INSTALL).path `
-          -env_type midtier `
-          -deploy_only `
-          -silent `
-          -ErrorAction SilentlyContinue 2>&1 | out-null
-      }
-    }
   }
   # Write-Output "`tUpdate env:PS_HOME to the new location"
   # [System.Environment]::SetEnvironmentVariable('PS_HOME', "$(hiera ps_home_location)", 'Machine');

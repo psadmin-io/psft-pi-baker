@@ -61,13 +61,13 @@ function determine_tools_version() {
 
 function determine_puppet_home() {
   switch ($TOOLS_MINOR_VERSION) {
-      "55" { 
-          $PUPPET_HOME = "C:\ProgramData\PuppetLabs\puppet\etc"
-       }
       "56" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
       }
       "57" {
+        $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
+      }
+      "58" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
       }
       Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
@@ -85,6 +85,17 @@ function determine_puppet_home() {
 function copy_customizations_file() {
   Write-Output "Copying customizations file"
   switch ($TOOLS_MINOR_VERSION) {
+    "58" {
+      if (!(Test-Path $PUPPET_HOME\production\data)) {
+        New-Item -ItemType directory -Path $PUPPET_HOME\production\data
+      }
+      if ($DEBUG -eq "true") {
+        Write-Output "Copying to ${PUPPET_HOME}\production\data"
+        Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force
+      } else {
+        Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force 2>&1 | out-null
+      }
+    }
     "57" {
       if (!(Test-Path $PUPPET_HOME\production\data)) {
         New-Item -ItemType directory -Path $PUPPET_HOME\production\data
@@ -105,17 +116,6 @@ function copy_customizations_file() {
         Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force
       } else {
         Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force 2>&1 | out-null
-      }
-    }
-    "55" {
-        if (!(Test-Path $PUPPET_HOME\data)) {
-          New-Item -ItemType directory -Path $PUPPET_HOME\data
-        }
-      if ($DEBUG -eq "true") {
-        Write-Output "Copying to ${PUPPET_HOME}\data"
-        Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\data\psft_customizations.yaml" -Force
-      } else {
-        Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\data\psft_customizations.yaml" -Force 2>&1 | out-null
       }
     }
   }

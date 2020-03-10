@@ -62,12 +62,15 @@ function determine_tools_version() {
 
 function determine_puppet_home() {
   switch ($TOOLS_MINOR_VERSION) {
-      "55" { 
-          $PUPPET_HOME = "C:\ProgramData\PuppetLabs\puppet\etc"
-       }
-       "56" {
-          $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
-       }
+    "58" {
+       $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
+    }
+    "57" {
+       $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
+    }
+    "56" {
+       $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
+    }
       Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
   }  
 
@@ -84,12 +87,15 @@ function copy_modules() {
   Write-Output "[${computername}][Task] Update DPK with custom modules"
   # copy-item c:\vagrant\site.pp C:\ProgramData\PuppetLabs\puppet\etc\manifests\site.pp -force
   switch ($TOOLS_MINOR_VERSION){
+    "58" {  
+      copy-item c:\vagrant\modules\* "${PUPPET_HOME}\production\modules\" -recurse -force
+    } 
+    "57" {  
+      copy-item c:\vagrant\modules\* "${PUPPET_HOME}\production\modules\" -recurse -force
+    } 
     "56" {  
       copy-item c:\vagrant\modules\* "${PUPPET_HOME}\production\modules\" -recurse -force
     } 
-    "55" {
-      copy-item c:\vagrant\modules\* "${PUPPET_HOME}\modules\" -recurse -force
-    }
   }
   Write-Output "[${computername}][Done] Update DPK with custom modules" -ForegroundColor green
 
@@ -106,11 +112,14 @@ function fix_dpk_bugs() {
 function set_dpk_role() {
   Write-Output "[${computername}][Task] Update DPK Role in site.pp"
   switch ($TOOLS_MINOR_VERSION) {
-    "56" {
+    "58" {
       (Get-Content "${PUPPET_HOME}\production\manifests\site.pp") -replace 'include.*', "include ${DPK_ROLE}" | Set-Content "${PUPPET_HOME}\production\manifests\site.pp"
     }
-    "55" {
-      (Get-Content "${PUPPET_HOME}\manifests\site.pp") -replace 'include.*', "include ${DPK_ROLE}" | Set-Content "${PUPPET_HOME}\manifests\site.pp"
+    "57" {
+      (Get-Content "${PUPPET_HOME}\production\manifests\site.pp") -replace 'include.*', "include ${DPK_ROLE}" | Set-Content "${PUPPET_HOME}\production\manifests\site.pp"
+    }
+    "56" {
+      (Get-Content "${PUPPET_HOME}\production\manifests\site.pp") -replace 'include.*', "include ${DPK_ROLE}" | Set-Content "${PUPPET_HOME}\production\manifests\site.pp"
     }
   }
   Write-Output "[${computername}][Task] Update DPK Role in site.pp"
