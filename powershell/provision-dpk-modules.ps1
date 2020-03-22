@@ -65,7 +65,7 @@ function determine_puppet_home() {
       "55" { 
           $PUPPET_HOME = "C:\ProgramData\PuppetLabs\puppet\etc"
        }
-       "56" {
+       default {
           $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
        }
       Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
@@ -83,12 +83,12 @@ function copy_modules() {
   # -----------------------------
   Write-Output "[${computername}][Task] Update DPK with custom modules"
   # copy-item c:\vagrant\site.pp C:\ProgramData\PuppetLabs\puppet\etc\manifests\site.pp -force
-  switch ($TOOLS_MINOR_VERSION){
-    "56" {  
-      copy-item c:\vagrant\modules\* "${PUPPET_HOME}\production\modules\" -recurse -force
-    } 
+  switch ($TOOLS_MINOR_VERSION){ 
     "55" {
       copy-item c:\vagrant\modules\* "${PUPPET_HOME}\modules\" -recurse -force
+    }
+    default {  
+      copy-item c:\vagrant\modules\* "${PUPPET_HOME}\production\modules\" -recurse -force
     }
   }
   Write-Output "[${computername}][Done] Update DPK with custom modules" -ForegroundColor green
