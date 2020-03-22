@@ -70,6 +70,9 @@ function determine_puppet_home() {
       "57" {
         $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
       }
+      "58" {
+        $PUPPET_HOME = "${PSFT_BASE_DIR}/dpk/puppet"
+      }
       Default { Write-Output "PeopleTools version could not be determined in the bs-manifest file."}
   }  
 
@@ -85,7 +88,17 @@ function determine_puppet_home() {
 function copy_customizations_file() {
   Write-Output "Copying customizations file"
   switch ($TOOLS_MINOR_VERSION) {
-    "57" {
+    "58" {
+      if (!(Test-Path $PUPPET_HOME\production\data)) {
+        New-Item -ItemType directory -Path $PUPPET_HOME\production\data
+      }
+      if ($DEBUG -eq "true") {
+        Write-Output "Copying to ${PUPPET_HOME}\production\data"
+        Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force
+      } else {
+        Copy-Item "c:\vagrant\config\psft_customizations.yaml" "${PUPPET_HOME}\production\data\psft_customizations.yaml" -Force 2>&1 | out-null
+      }
+    }"57" {
       if (!(Test-Path $PUPPET_HOME\production\data)) {
         New-Item -ItemType directory -Path $PUPPET_HOME\production\data
       }
