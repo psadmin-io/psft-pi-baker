@@ -69,7 +69,12 @@ function install_browsers() {
 function install_code_management() {
   Write-Output "[${env:COMPUTERNAME}] Installing Code Management Software"
   choco install VSCode -y
-	choco install git -y
+  choco install git -y
+}
+
+function install_command_line_utils() {
+  Write-Output "[${env:COMPUTERNAME}] Installing Command Line Utilities"
+  choco install grep -y
 }
 
 #-----------------------------------------------------------[Execution]-----------------------------------------------------------
@@ -78,3 +83,4 @@ function install_code_management() {
 . install_browsers
 . install_code_management
 . install_psadmin_plus
+. install_command_line_utils
