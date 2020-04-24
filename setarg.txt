@@ -1,0 +1,1 @@
+-i silent -DRES_FILE_PATH "C:/Users/cloudbase-init/AppData/Local/Temp/wl-create-domain.rsp"      

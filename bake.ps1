@@ -14,11 +14,10 @@
 [CmdletBinding(DefaultParameterSetName="Help")]
 
 Param(
-#    [Parameter (Mandatory=$true, ParameterSetName="Install")][Alias("i")][switch] $Install,
-#    [Parameter (Mandatory=$false, ParameterSetName="Help")] [switch] $Help
-    [String]$MOS_USERNAME = $env:MOS_USERNAME,
-    [String]$MOS_PASSWORD = $env:MOS_PASSWORD, # TODO secure string
-    [String]$MOS_PATCH_ID = $env:MOS_PATCH_ID
+    [Parameter(Mandatory=$true)][String]$MOS_USERNAME       = $env:MOS_USERNAME,
+    [Parameter(Mandatory=$true)][String]$MOS_PASSWORD       = $env:MOS_PASSWORD, # TODO secure string
+    [Parameter(Mandatory=$true)][String]$MOS_PATCH_ID       = $env:MOS_PATCH_ID,
+    [Parameter(Mandatory=$false)][String]$MOS_ELK_PATCH_ID  = $env:MOS_ELK_PATCH_ID
 )
 
 Begin {
@@ -75,6 +74,14 @@ Process {
     & ./powershell/provision-puppet-apply.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/$MOS_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
     info("util")
     & ./powershell/provision-utilities.ps1 >> $log
+
+    if (${MOS_ELK_PATCH_ID}) {
+        & ./powershell/provision-download.ps1 -MOS_USERNAME "${MOS_USERNAME}" -MOS_PASSWORD "${MOS_PASSWORD}" -PATCH_ID "${MOS_ELK_PATCH_ID}" -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_ELK_PATCH_ID}" | set-content -path $log
+
+        $APP = (ls c:/psft/dpk/downloads/${MOS_PATCH_ID}\APP*.zip | select -First 1).Name.split("-")[3]
+        & ./powershell/provision-elk.ps1 -ELK_INSTALL "c:/psft/dpk/downloads/${MOS_ELK_PATCH_ID}" -APP $APP | set-content -path $log
+    }
+
 
     info("done done.")
 }
