@@ -54,7 +54,7 @@ $VerbosePreference = "SilentlyContinue"
 
 #------------------------------------------------------------[Variables]----------------------------------------------------------
 
-If ( ${ELK_INSTALL} -eq '' ) { Write-Output "ELK_INSTALL must be passed" }
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13, [Net.SecurityProtocolType]::Tls12 
 
 $DEBUG = "true"
 
@@ -72,13 +72,23 @@ function determine_elk_version() {
     }
 }
 
+function configure_java() {
+    $JRE_VERSION = $(Get-Content ${ELK_INSTALL}/elasticsearch-manifest | select-string jre_version | % { $_.line.split("=")[1].split(" ")[0] })
+    $JAVA_HOME="${env:TEMP}\jre"
+    7z x $ELK_INSTALL\archives\pt-jre$JRE_VERSION.tgz -o"$JAVA_HOME" 2>&1 | out-null
+    7z x $JAVA_HOME\pt-jre$JRE_VERSION.tgz -o"$JAVA_HOME" 2>&1 | out-null
+    $env:JAVA_HOME="${JAVA_HOME}"
+    $env:PATH="${env:PATH};${JAVA_HOME}\bin"
+}
+
 function encrypt_es_passwords() {
     Write-Output "Encrypting Elasticsearch passwords"
 
+    $ELASTIC_HOME="${env:TEMP}\es"
     # Extract Elasticsearch pscipher and psvault to use for encryption
-    7z x $ELK_INSTALL\archives\pt-elasticsearch-$ELK_VERSION.tgz -o"$env:TEMP\es\" 2>&1 | out-null
-    7z e $env:TEMP\es\pt-elasticsearch-$ELK_VERSION.tgz -o"$env:TEMP\es\" psvault -r -aoa 2>&1 | out-null
-    7z e $env:TEMP\es\pt-elasticsearch-$ELK_VERSION.tgz -o"$env:TEMP\es\" pscipher.jar -r -aoa 2>&1 | out-null
+    7z x $ELK_INSTALL\archives\pt-elasticsearch-$ELK_VERSION.tgz -o"$ELASTIC_HOME\" 2>&1 | out-null
+    7z e $ELASTIC_HOME\pt-elasticsearch-$ELK_VERSION.tgz -o"$ELASTIC_HOME\" psvault -r -aoa 2>&1 | out-null
+    7z e $ELASTIC_HOME\pt-elasticsearch-$ELK_VERSION.tgz -o"$ELASTIC_HOME\" pscipher.jar -r -aoa 2>&1 | out-null
 
     # Encrypt passwords for Elasticsearch
     $PSCIPHER_PATH="${env:TEMP}\es"
@@ -89,9 +99,6 @@ function encrypt_es_passwords() {
     $esadmin_pass_es = $(gc es_password.txt | select-string esadmin | % {$_.line.split(":")[1]})
     $people_pass_es = $(gc es_password.txt | select-string people | % {$_.line.split(":")[1]})
 
-    # Cleanup temp files
-    Remove-Item $env:TEMP\es -recurse
-    Remove-Item es_password.txt
 }
 
 function encrypt_ls_passwords() {
@@ -112,8 +119,6 @@ function encrypt_ls_passwords() {
     $ib_user         = (cmd /c "${PSCIPHER_CMD} ${db_user}").split(" ")[2]
     $ib_pass         = (cmd /c "${PSCIPHER_CMD} ${db_user_pwd}").split(" ")[2]
 
-    # Cleanup temp files
-    Remove-Item $env:TEMP\ls -recurse
 }
 
 function generate_response_file() {
@@ -125,6 +130,7 @@ function generate_response_file() {
     $db_user = $(hiera db_user -c $PUPPET_HOME\hiera.yaml)
     $db_user_pwd = $(hiera db_user_pwd -c $PUPPET_HOME\hiera.yaml)
     
+    . configure_java
     . encrypt_es_passwords
     . encrypt_ls_passwords
 
@@ -198,6 +204,28 @@ function execute_psft_dpk_setup() {
   }
 }
 
+function install_cerebro() {
+    Write-Output "Installing Cerebro"
+
+    iwr https://github.com/lmenezes/cerebro/releases/download/v0.9.0/cerebro-0.9.0.zip -outfile $env:TEMP\cerebro.zip
+    expand-archive $env:TEMP\cerebro.zip -destination c:\app\
+
+    $conf = @"
+hosts = [
+  {
+   host = "http://localhost:9200"
+   name = "Elasticsearch"
+   auth = {
+     username = "esadmin"
+     password = "${ESADMIN_PWD}"
+   }
+  }
+]    
+"@
+
+    add-content c:\app\cerebro-0.9.0\conf\application.conf $conf
+}
+
 function create_services() {
     
     # Elasticsearch
@@ -221,7 +249,24 @@ function create_services() {
     nssm set logstash Description "Logstash ${ELK_VERSION}"
     nssm set logstash AppEnvironmentExtra LOGSTASH_HOME=${ELK_BASE_DIR}\pt\Logstash${ELK_VERSION}
     start-service logstash
-    
+
+    # Cerebro
+    Write-Output "Installing Cerebro Service"
+    nssm install cerebro "c:\app\cerebro-0.9.0\bin\cerebro.bat"
+    nssm set cerebro AppDirectory "c:\app\cerebro-0.9.0"
+    nssm set cerebro Start SERVICE_AUTO_START
+    nssm set cerebro Description "Cerebro - Elasticsearch Monitoring"
+    start-service cerebro    
+}
+
+
+
+function cleanup() {
+    # Cleanup temp files
+    Remove-Item $ELASTIC_HOME -recurse
+    Remove-Item $LOGSTASH_HOME -recurse
+    Remove-Item $JAVA_HOME -recurse
+    Remove-Item $env:TEMP\cerebro.zip
 }
 
 $start_loc = $(get-location)
@@ -229,6 +274,8 @@ $start_loc = $(get-location)
 . determine_elk_version
 . generate_response_file
 . execute_psft_dpk_setup
+. install_cerebro
 . create_services
+. cleanup
 
 set-location $start_loc
