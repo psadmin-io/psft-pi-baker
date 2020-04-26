@@ -76,6 +76,7 @@ function install_command_line_utils() {
   Write-Output "[${env:COMPUTERNAME}] Installing Command Line Utilities"
   choco install grep -y
   choco install 7zip - y
+  choco install nssm -y
 }
 
 #-----------------------------------------------------------[Execution]-----------------------------------------------------------

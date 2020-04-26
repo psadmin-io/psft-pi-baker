@@ -79,7 +79,7 @@ Process {
         & ./powershell/provision-download.ps1 -MOS_USERNAME "${MOS_USERNAME}" -MOS_PASSWORD "${MOS_PASSWORD}" -PATCH_ID "${MOS_ELK_PATCH_ID}" -DPK_INSTALL "c:/psft/dpk/downloads/${MOS_ELK_PATCH_ID}" | set-content -path $log
 
         $APP = (ls c:/psft/dpk/downloads/${MOS_PATCH_ID}\APP*.zip | select -First 1).Name.split("-")[3]
-        & ./powershell/provision-elk.ps1 -ELK_INSTALL "c:/psft/dpk/downloads/${MOS_ELK_PATCH_ID}" -APP $APP -PUPPET_HOME "c:/psft/dpk/puppet" -ESADMIN_PWD "Passw0rd#" -PEOPLE_PWD "peop1e" | set-content -path $log
+        & ./powershell/provision-elk.ps1 -ELK_INSTALL "c:/psft/dpk/downloads/${MOS_ELK_PATCH_ID}" -APP $APP -PUPPET_HOME "c:/psft/dpk/puppet" -ELK_BASE_DIR "c:/psft/elk" -ESADMIN_PWD "Passw0rd#" -PEOPLE_PWD "peop1e" | set-content -path $log
     }
 
 
