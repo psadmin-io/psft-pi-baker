@@ -63,7 +63,7 @@ $PROF      = 'true'
 #-----------------------------------------------------------[Functions]-----------------------------------------------------------
 
 function execute_security_setup() {    
-    Write-Host "Adding execute permisions to Client Tools"
+    Write-Output "Adding execute permisions to Client Tools"
     # Rights
     $readOnly = [System.Security.AccessControl.FileSystemRights]"ReadAndExecute"
     #$readWrite = [System.Security.AccessControl.FileSystemRights]"Modify"
@@ -86,13 +86,13 @@ function execute_security_setup() {
 
 function execute_ca_setup() {
   # CA
-  Write-Host "Setting Up Change Assistant"
+  Write-Output "Setting Up Change Assistant"
   & $Env:PS_HOME\setup\PsCA\silentInstall.bat "$CA_PATH" $CA_TYPE $CA_BACKUP
 }
 
 function execute_ptf_setup() {
   # PTF
-  Write-Host "Setting Up PeopleSoft Test Framework"
+  Write-Output "Setting Up PeopleSoft Test Framework"
   & ${Env:PS_HOME}\setup\PsTestFramework\setup.bat
 }
 
@@ -120,7 +120,7 @@ function execute_shortcut_setup() {
 }
 
 function config_manager_setup () {
-    Write-Host "Importing Config Manager Setup"
+    Write-Output "Importing Config Manager Setup"
 
     & regedit /s c:\vagrant\config\client.reg
 
@@ -190,7 +190,7 @@ function config_manager_setup () {
 # "@
     # $file = New-Item -type file "${base}\pscfg.cfg" -force
     # $cfg_file | out-file $file -Encoding ascii
-    # Write-Host "pscfg.cfg: `n ${cfg_file}"
+    # Write-Output "pscfg.cfg: `n ${cfg_file}"
     # set-location "${ps_home}\bin\client\winx86"
     # $pscfg = "${ps_home}\bin\client\winx86\pscfg.exe"
     # Start-Process -FilePath "$git" -ArgumentList "clone https://github.com/psadmin-io/psadmin-plus.git $psa"

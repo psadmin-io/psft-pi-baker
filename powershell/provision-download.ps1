@@ -51,9 +51,9 @@ $VerbosePreference = "SilentlyContinue"
 
 #------------------------------------------------------------[Variables]----------------------------------------------------------
 
-If ( ${MOS_USERNAME} -eq '' ) { Write-Host "MOS_USERNAME must be specified in config.rb or `$env:MOS_USERNAME" }
-If ( ${MOS_PASSWORD} -eq '' ) { Write-Host "MOS_PASSWORD must be specified in config.rb or `$env:MOS_PASSWORD" }
-If ( ${PATCH_ID} -eq '' ) { Write-Host "PATCH_ID must be specified in config.rb" }
+If ( ${MOS_USERNAME} -eq '' ) { Write-Output "MOS_USERNAME must be specified in config.rb or `$env:MOS_USERNAME" }
+If ( ${MOS_PASSWORD} -eq '' ) { Write-Output "MOS_PASSWORD must be specified in config.rb or `$env:MOS_PASSWORD" }
+If ( ${PATCH_ID} -eq '' ) { Write-Output "PATCH_ID must be specified in config.rb" }
 
 $DEBUG = "false"
 
@@ -71,7 +71,7 @@ $VAGABOND_STATUS  = "${DPK_INSTALL}\vagabond.json"
         #[Parameter(Mandatory=$true)][string]$Message
     #)
     #Process {
-        #Write-Host "INFO: $Message  " -Fore DarkYellow
+        #Write-Output "INFO: $Message  " -Fore DarkYellow
     #}
 #}
 
@@ -111,28 +111,28 @@ $VAGABOND_STATUS  = "${DPK_INSTALL}\vagabond.json"
 
 function check_dpk_install_dir {
   if (-Not (test-path $DPK_INSTALL)) {
-    Write-Host "DPK installation directory ${DPK_INSTALL} does not exist"
+    Write-Output "DPK installation directory ${DPK_INSTALL} does not exist"
     mkdir $DPK_INSTALL
   } else {
-    Write-Host "Found DPK installation directory ${DPK_INSTALL}"
+    Write-Output "Found DPK installation directory ${DPK_INSTALL}"
   }
 }
 
 function check_vagabond_status {
   if (-Not (Test-Path "${VAGABOND_STATUS}" )) {
-    Write-Host "Vagabond status file ${VAGABOND_STATUS} does not exist"
+    Write-Output "Vagabond status file ${VAGABOND_STATUS} does not exist"
     if ($DEBUG -eq "true") {
       Copy-Item C:\vagrant\scripts\vagabond.json $DPK_INSTALL -Verbose
     } else {
       Copy-Item C:\vagrant\scripts\vagabond.json $DPK_INSTALL
     }
   } else {
-    Write-Host "Found Vagabond status file ${VAGABOND_STATUS}"
+    Write-Output "Found Vagabond status file ${VAGABOND_STATUS}"
   }
 }
 
 function record_step_success($step) {
-  Write-Host "Recording success for ${step}"
+  Write-Output "Recording success for ${step}"
   $status = get-content $VAGABOND_STATUS | convertfrom-json
   $status.$step = "true"
   convertto-json $status | set-content $VAGABOND_STATUS
@@ -141,7 +141,7 @@ function record_step_success($step) {
 function install_additional_packages {
   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13, [Net.SecurityProtocolType]::Tls12 
   if (-Not (Test-Path C:\ProgramData\chocolatey\bin)) {
-    Write-Host "Installing Chocolatey Package Manager"
+    Write-Output "Installing Chocolatey Package Manager"
     if ($DEBUG -eq "true") {
       (Invoke-Expression ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')))
     } else {
@@ -150,7 +150,7 @@ function install_additional_packages {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
   }
   if (-Not (Test-Path C:\ProgramData\chocolatey\bin\wget.exe)) {
-    Write-Host "Installing wget"
+    Write-Output "Installing wget"
     if ($DEBUG -eq "true") {
       choco install wget --version 1.19.4 -y
     } else {
@@ -160,7 +160,7 @@ function install_additional_packages {
   If (Test-Path Alias:wget) { Remove-Item Alias:wget 2>&1 | out-null }
   If (Test-Path Alias:wget) { Remove-Item Alias:wget 2>&1 | out-null }
   if (-Not (Test-Path C:\ProgramData\chocolatey\bin\jq.exe)) {
-    Write-Host "Installing jq"
+    Write-Output "Installing jq"
     if ($DEBUG -eq "true") {
       choco install jq -y
     } else {
@@ -168,7 +168,7 @@ function install_additional_packages {
     }
   }
   if (-Not (Test-Path C:\ProgramData\chocolatey\bin\aria2c.exe)) {
-    Write-Host "Installing aria2"
+    Write-Output "Installing aria2"
     if ($DEBUG -eq "true") {
       choco install aria2 -y
     } else {
@@ -197,7 +197,7 @@ function create_authorization_cookie {
                     -UseBasicParsing `
                     -Body $AUTH_DATA | Out-Null
 
-  wget --secure-protocol=TLSv1 `
+  wget.exe --secure-protocol=TLSv1 `
        --save-cookies="${COOKIE_FILE}" `
        --keep-session-cookies `
        --no-check-certificate `
@@ -210,7 +210,7 @@ function create_authorization_cookie {
 }
 
 function download_search_results {
-  Write-Host "Downloading search page results for ${PATCH_ID}"
+  Write-Output "Downloading search page results for ${PATCH_ID}"
   $SEARCH_LOGFILE = Invoke-WebRequest -uri "https://updates.oracle.com/Orion/SimpleSearch/process_form?search_type=patch&patch_number=${PATCH_ID}&plat_lang=233P" `
                                       -UserAgent "Mozilla/5.0" `
                                       -WebSession $MOSSession `
@@ -225,7 +225,7 @@ function extract_download_links {
 function download_patch_files {
   $status = get-content $VAGABOND_STATUS | convertfrom-json
   if ( $status.download_patch_files -eq "false") {
-    Write-Host "Downloading patch files"
+    Write-Output "Downloading patch files"
     $begin=$(get-date)
     . create_authorization_cookie
 
@@ -257,9 +257,9 @@ function download_patch_files {
     }
 	#Confirm zip files exist in download location
 	if (-Not (test-path $DPK_INSTALL/*.zip)){
-	Write-Host "#####################################################################################" -foregroundcolor yellow
-    Write-Host "ERROR!!!!! NO ZIP FILES FOUND IN $DPK_INSTALL directory. `n Confirm PATCH_ID is correct and check %TEMP%\dlLog.LOG" -foregroundcolor yellow
-	Write-Host "#####################################################################################" -foregroundcolor yellow
+	Write-Output "#####################################################################################" -foregroundcolor yellow
+    Write-Output "ERROR!!!!! NO ZIP FILES FOUND IN $DPK_INSTALL directory. `n Confirm PATCH_ID is correct and check %TEMP%\dlLog.LOG" -foregroundcolor yellow
+	Write-Output "#####################################################################################" -foregroundcolor yellow
     exit 1
     }
 	
@@ -268,7 +268,7 @@ function download_patch_files {
     # local tottime="$((end - begin))"
     # timings[download_patch_files]=$tottime
   } else {
-    Write-Host "Patch files already downloaded"
+    Write-Output "Patch files already downloaded"
   }
 }
 
@@ -276,7 +276,7 @@ function unpack_setup_scripts() {
   $status = get-content $VAGABOND_STATUS | convertfrom-json
   if ( $status.unpack_setup_scripts -eq "false") {
     # local begin=$(date +%s)
-    Write-Host "Unpacking DPK setup scripts"
+    Write-Output "Unpacking DPK setup scripts"
     if ($DEBUG -eq "true") {
       get-childitem "${DPK_INSTALL}/*.zip" | % { Expand-Archive $_ -DestinationPath ${DPK_INSTALL} -Force}
       # Remove downloaded .zip files so Bootstrap doesn't re-extract them
@@ -288,9 +288,9 @@ function unpack_setup_scripts() {
     }
 	
 	if (-Not (test-path $DPK_INSTALL/setup/*)){
-	Write-Host "#####################################################################################" -foregroundcolor yellow
-    Write-Host "ERROR!!!!! NO  FILES FOUND IN $DPK_INSTALL/setup directory. `n Check logs in %TEMP%\" -foregroundcolor yellow
-	Write-Host "#####################################################################################" -foregroundcolor yellow
+	Write-Output "#####################################################################################" -foregroundcolor yellow
+    Write-Output "ERROR!!!!! NO  FILES FOUND IN $DPK_INSTALL/setup directory. `n Check logs in %TEMP%\" -foregroundcolor yellow
+	Write-Output "#####################################################################################" -foregroundcolor yellow
     exit 1
     }
 	
@@ -299,7 +299,7 @@ function unpack_setup_scripts() {
     # local tottime="$((end - begin))"
     # timings[unpack_setup_scripts]=$tottime
   } else {
-    Write-Host "Setup scripts already unpacked"
+    Write-Output "Setup scripts already unpacked"
   }
 }
 
@@ -311,22 +311,22 @@ function unpack_setup_scripts() {
 #     total_duration=$((duration + total_duration))
 #   done
 
-#   Write-Host "TASK`t`tDURATION"
-#   Write-Host "${divider}"
+#   Write-Output "TASK`t`tDURATION"
+#   Write-Output "${divider}"
 #   for key in "${!timings[@]}"; do
 #     local converted_timing=$(date -u -d @${timings[$key]} +"%T")
 #     printf "$format" "$key" "${converted_timing}"
 #   done
-#   Write-Host "%$width.${width}s\n" "$divider"
-#   Write-Host "$format" "TOTAL TIME:" $(date -u -d @${total_duration} +"%T")
-#   Write-Host "`n"
+#   Write-Output "%$width.${width}s\n" "$divider"
+#   Write-Output "$format" "TOTAL TIME:" $(date -u -d @${total_duration} +"%T")
+#   Write-Output "`n"
 # }
 
 function cleanup_before_exit {
   if ($DEBUG -eq "true") {
-    Write-Host "Temporary files and logs can be found in ${env:TEMP}"
+    Write-Output "Temporary files and logs can be found in ${env:TEMP}"
   } else {
-    Write-Host "Cleaning up temporary files"
+    Write-Output "Cleaning up temporary files"
     Remove-Item $env:TEMP -Recurse -Force 2>&1 | out-null
   }
 
