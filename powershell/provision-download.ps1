@@ -37,7 +37,7 @@
 Param(
   [String]$PATCH_ID     = $env:PATCH_ID,
   [String]$MOS_USERNAME = $env:MOS_USERNAME,
-  [String]$MOS_PASSWORD = $env:MOS_PASSWORD,
+  [Parameter(Mandatory=$true)][String]$MOS_PASSWORD = $env:MOS_PASSWORD,
   [String]$DPK_INSTALL  = $env:DPK_INSTALL
 )
 
