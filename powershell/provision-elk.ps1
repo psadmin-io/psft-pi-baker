@@ -97,16 +97,20 @@ function encrypt_es_passwords() {
 function encrypt_ls_passwords() {
     Write-Output "Encrypting Logstash passwords"
 
+    $LOGSTASH_HOME="$env:TEMP\ls"
     # Extract Logstash pscipher and psvault to use for encryption
-    7z x $ELK_INSTALL\archives\pt-logstash-$ELK_VERSION.tgz -o"$env:TEMP\ls\" 2>&1 | out-null
-    7z x $env:TEMP\ls\pt-logstash-$ELK_VERSION.tgz -o"$env:TEMP\ls\" 2>&1 | out-null
+    7z x $ELK_INSTALL\archives\pt-logstash-$ELK_VERSION.tgz -o"$LOGSTASH_HOME" 2>&1 | out-null
+    7z e $LOGSTASH_HOME\pt-logstash-$ELK_VERSION.tgz -o"$LOGSTASH_HOME" psvault -r -aoa 2>&1 | out-null
+    7z e $LOGSTASH_HOME\pt-logstash-$ELK_VERSION.tgz -o"$LOGSTASH_HOME" psmanagement.jar -r -aoa 2>&1 | out-null
+    7z e $LOGSTASH_HOME\pt-logstash-$ELK_VERSION.tgz -o"$LOGSTASH_HOME" pscipher.jar -r -aoa 2>&1 | out-null
     
     # Encrypt Passwords for Logstash
-    $LOGSTASH_HOME="$env:TEMP\ls"
-    $esadmin_pass_ls = (cmd /c  ${LOGSTASH_HOME}\pt\bin\pslscipher.bat ${ESADMIN_PWD}).split(" ")[2]
-    $people_pass_ls = (cmd /c  ${LOGSTASH_HOME}\pt\bin\pslscipher.bat ${PEOPLE_PWD}).split(" ")[2]
-    $ib_user = (cmd /c  ${LOGSTASH_HOME}\pt\bin\pslscipher.bat ${db_user}).split(" ")[2]
-    $ib_pass = (cmd /c  ${LOGSTASH_HOME}\pt\bin\pslscipher.bat ${db_user_pwd}).split(" ")[2]
+    # pslscipher.bat was failing - running the command directly and without extracting all of LOGSTASH_HOME
+    $PSCIPHER_CMD="java -Dps_vault=${LOGSTASH_HOME}\psvault -cp ${LOGSTASH_HOME}\psmanagement.jar;${LOGSTASH_HOME}\pscipher.jar;${LOGSTASH_HOME} -DPROP_FILE=${LOGSTASH_HOME}\JsonLogstash.properties  psft.pt8.pshttp.PSCipher"
+    $esadmin_pass_ls = (cmd /c "${PSCIPHER_CMD} ${ESADMIN_PWD}").split(" ")[2]
+    $people_pass_ls  = (cmd /c "${PSCIPHER_CMD} ${PEOPLE_PWD}").split(" ")[2]
+    $ib_user         = (cmd /c "${PSCIPHER_CMD} ${db_user}").split(" ")[2]
+    $ib_pass         = (cmd /c "${PSCIPHER_CMD} ${db_user_pwd}").split(" ")[2]
 
     # Cleanup temp files
     Remove-Item $env:TEMP\ls -recurse
@@ -197,9 +201,11 @@ function execute_psft_dpk_setup() {
 function create_services() {
     
     # Elasticsearch
+    Write-Output "Fixing Elasticsearch Service"
     nssm set elasticsearch-service-x64 Start SERVICE_AUTO_START
     
     # Kiabna
+    Write-Output "Installing Kibana Service"
     nssm install kibana ${ELK_BASE_DIR}\pt\Kibana${ELK_VERSION}\bin\kibana.bat 
     nssm set kibana AppDirectory ${ELK_BASE_DIR}\pt\Kibana${ELK_VERSION}\bin
     nssm set kibana Start SERVICE_AUTO_START 
@@ -207,6 +213,7 @@ function create_services() {
     start-service kibana
 
     # Logstash
+    Write-Output "Installing Logstash Service"
     nssm install logstash "${ELK_BASE_DIR}\pt\Logstash${ELK_VERSION}\bin\logstash.bat"
     nssm set logstash AppParameters "-f ${ELK_BASE_DIR}\pt\Logstash${ELK_VERSION}\pt\config\LogstashPipeLine.CONF"
     nssm set logstash AppDirectory ${ELK_BASE_DIR}\pt\Logstash${ELK_VERSION}\bin
