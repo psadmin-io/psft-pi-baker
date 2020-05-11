@@ -31,6 +31,7 @@ Param(
 $ErrorActionPreference = "Stop"
 $DebugPreference = "SilentlyContinue"
 $VerbosePreference = "SilentlyContinue"
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 #-----------------------------------------------------------[Variables]-----------------------------------------------------------
 
@@ -44,20 +45,17 @@ function install_psadmin_plus() {
 
   If (-Not (Test-Path -Path $CACertFile)) {  
     #"Downloading CA Cert bundle.."
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Invoke-WebRequest -Uri 'https://curl.haxx.se/ca/cacert.pem' -UseBasicParsing -OutFile $CACertFile | Out-Null
   }
-
-  # Update PATH
-  Write-Output "[${env:COMPUTERNAME}] Adding gem and git to PATH"
-  $env:PATH+=";C:\Program Files\Puppet Labs\Puppet\sys\ruby\bin;C:\Program Files\Git\bin"
-  [System.Environment]::SetEnvironmentVariable('PATH',$env:PATH, [System.EnvironmentVariableTarget]::Machine)
 
   # "Setting CA Certificate store set to $CACertFile.."
   $ENV:SSL_CERT_FILE = $CACertFile
   [System.Environment]::SetEnvironmentVariable('SSL_CERT_FILE',$CACertFile, [System.EnvironmentVariableTarget]::Machine)
 
   gem install psadmin_plus
+  gem install mosbot
+  [System.Environment]::SetEnvironmentVariable('PATH',"${env:PATH};C:\Program Files\Puppet Labs\Puppet\sys\ruby\bin", [System.EnvironmentVariableTarget]::Machine)
+  
 }
 
 function install_browsers() {
@@ -69,7 +67,35 @@ function install_browsers() {
 function install_code_management() {
   Write-Output "[${env:COMPUTERNAME}] Installing Code Management Software"
   choco install VSCode -y
-	choco install git -y
+  [System.Environment]::SetEnvironmentVariable('PATH',"${env:PATH};C:\Program Files\Microsoft VS Code\bin", [System.EnvironmentVariableTarget]::Machine)
+  
+  choco install git -y
+  [System.Environment]::SetEnvironmentVariable('PATH',"${env:PATH};C:\Program Files\Git\bin", [System.EnvironmentVariableTarget]::Machine)
+}
+
+function install_command_line_utils() {
+  Write-Output "[${env:COMPUTERNAME}] Installing Command Line Utilities"
+  choco install grep -y
+  choco install 7zip -y
+  choco install nssm -y
+  iwr https://github.com/MarisElsins/getMOSPatch/raw/master/getMOSPatch.jar -outfile c:\temp\getMOSPatch.jar
+}
+
+function fix_puppet_path() {
+  Write-Output "[${env:COMPUTERNAME}] Fix PATH"
+  [System.Environment]::SetEnvironmentVariable('PATH',"${env:PATH};C:\Program Files\Puppet Labs\Puppet\bin", [System.EnvironmentVariableTarget]::Machine)
+}
+
+function start_tuxedo_domains() {
+  Write-Output "[${env:COMPUTERNAME}] Start Tuxedo Domains"
+
+}
+
+function install_command_line_utils() {
+  Write-Output "[${env:COMPUTERNAME}] Installing Command Line Utilities"
+  choco install grep -y
+  choco install 7zip - y
+  choco install nssm -y
 }
 
 #-----------------------------------------------------------[Execution]-----------------------------------------------------------
@@ -78,3 +104,5 @@ function install_code_management() {
 . install_browsers
 . install_code_management
 . install_psadmin_plus
+. install_command_line_utils
+. fix_puppet_path
