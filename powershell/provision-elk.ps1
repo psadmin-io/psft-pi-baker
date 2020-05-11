@@ -138,6 +138,21 @@ function generate_response_file() {
         "FSCM92" {
             $nodename = "PSFT_EP"
         }
+        "ELM92" {
+            $nodename = "PSFT_LM"
+        }
+        "HCM92" {
+            $nodename = "PSFT_HR"
+        }
+        "CRM92" { 
+            $nodename = "PSFT_CR"
+        }
+        "CS92" {
+            $nodename = "PSFT_LS"
+        }
+        "IH92" {
+            $nodename = "PSFT_PA"
+        }
     }
 
     $template=@"
