@@ -1,0 +1,46 @@
+2020-08-19 17:32:49,443 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:34:15,163 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:35:54,908 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:37:52,431 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:37:57,726 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:39:43,079 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:42:20,713 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:42:20,714 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:42:20,714 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:45:16,916 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:45:16,916 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:45:16,917 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:45:16,917 [MainThread  ] [ERROR]  [Errno 17] File exists: '/u01/app/oracle/product'
+2020-08-19 17:48:14,151 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:48:14,151 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:49:28,143 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:49:28,143 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:50:21,735 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:50:21,736 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:50:21,736 [MainThread  ] [DEBUG]  [Errno 17] File exists: '/u01/app/oracle/product'
+2020-08-19 17:51:16,448 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:51:16,448 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:51:16,449 [MainThread  ] [DEBUG]  [Errno 17] File exists: '/u01/app/oracle/product'
+2020-08-19 17:54:05,062 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:54:05,062 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:54:05,063 [MainThread  ] [ERROR]  There was an issue setting up the file system.
+2020-08-19 17:54:05,063 [MainThread  ] [ERROR]  'PosixPath' object has no attribute 'nkdir'
+2020-08-19 17:54:26,329 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:54:26,329 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:54:36,672 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:54:36,672 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 17:54:36,673 [MainThread  ] [DEBUG]  [Errno 17] File exists: '/u01/app/oracle/producthostname/dpk'
+2020-08-19 17:55:32,539 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 17:55:32,539 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 18:00:32,206 [MainThread  ] [DEBUG]  Banner start
+2020-08-19 18:00:32,206 [MainThread  ] [DEBUG]  Banner stop
+2020-08-19 18:00:32,206 [MainThread  ] [DEBUG]  Create base directory, if needed.
+2020-08-19 18:00:32,207 [MainThread  ] [DEBUG]  Create dpk directory, if needed.
+2020-08-19 18:00:32,207 [MainThread  ] [DEBUG]  Create home directory, if needed.
+2020-08-19 18:00:32,207 [MainThread  ] [DEBUG]  Create PS_CFG_HOME directory, if needed.
+2020-08-19 18:00:32,207 [MainThread  ] [INFO ]  Downloading DPK zip files. - TODO
+2020-08-19 18:00:32,207 [MainThread  ] [INFO ]  TODO
+2020-08-19 18:00:32,208 [MainThread  ] [INFO ]  TODO
+2020-08-19 18:00:32,208 [MainThread  ] [INFO ]  TODO
+2020-08-19 18:00:32,208 [MainThread  ] [INFO ]  TODO
+2020-08-19 18:00:32,208 [MainThread  ] [INFO ]  TODO
