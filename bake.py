@@ -1,5 +1,6 @@
 import os
 import logging
+import subprocess
 
 from shutil import copyfile
 from pathlib import Path
@@ -13,8 +14,8 @@ files_dir = os.path.dirname(os.path.realpath(__file__)) + "/files"
 userdata_dir = os.path.dirname(os.path.realpath(__file__)) + "/userdata"
 
 # Logging
-logpath = "."
-logfile  = "psft-pi-baker.log" # TODO
+logpath = userdata_dir
+logfile = "psft-pi-baker.log"
 loglevel = logging.DEBUG 
 rootLogger = logging.getLogger()
 rootLogger.setLevel(loglevel)
@@ -89,34 +90,35 @@ def bootstrap(dpk_files_dir, psft_base_dir, puppet_home):
 
     # generate_response_file
     logging.debug("Generating response file")
-    rsp_file = open(dpk_files_dir + "/response.cfg") # TODO mode?
+    rsp_file = open(dpk_files_dir + "/response.cfg","w") 
     responses = [
-        "psft_base_dir = \"${PSFT_BASE_DIR}\"",
-        "install_type = \"PUM\"",
-        "env_type  = \"fulltier\"",
-        "db_type = \"DEMO\"",
-        "db_name = \"PSFTDB\"",
-        "db_service_name = \"PSFTDB\"",
-        "db_host = \"localhost\"",
-        "admin_pwd = \"Passw0rd_\"",
-        "connect_pwd = \"peop1e\"",
-        "access_pwd  = \"SYSADM\"",
-        "opr_pwd = \"PS\"",
-        "domain_conn_pwd = \"P@ssw0rd_\"",
-        "weblogic_admin_pwd  = \"Passw0rd#\"",
-        "webprofile_user_pwd = \"PTWEBSERVER\"",
-        "gw_user_pwd = \"password\"",
+        "psft_base_dir = \"" + psft_base_dir + "\"\n",
+        "install_type = \"PUM\"\n",
+        "env_type  = \"fulltier\"\n",
+        "db_type = \"DEMO\"\n",
+        "db_name = \"PSFTDB\"\n",
+        "db_service_name = \"PSFTDB\"\n",
+        "db_host = \"localhost\"\n",
+        "admin_pwd = \"Passw0rd_\"\n",
+        "connect_pwd = \"peop1e\"\n",
+        "access_pwd  = \"SYSADM\"\n",
+        "opr_pwd = \"PS\"\n",
+       # "domain_conn_pwd = \"P@ssw0rd_\"\n",
+        "weblogic_admin_pwd  = \"Passw0rd#\"\n",
+        "webprofile_user_pwd = \"PTWEBSERVER\"\n",
+        "gw_user_pwd = \"password\"\n",
     ]
     rsp_file.writelines(responses)
+    rsp_file.close()
 
-# execute_psft_dpk_setup
-    # logging.debug("Executing DPK Setup")
+    # execute_psft_dpk_setup
+    logging.debug("Executing DPK Setup")
 
-#             . "${DPK_INSTALL}/setup/psft-dpk-setup.bat" `
-#             --silent `
-#             --dpk_src_dir "${DPK_INSTALL}" `
-#             --response_file "${DPK_INSTALL}/response.cfg" `
-#             --no_puppet_run
+    if os.name == 'nt':
+        logging.warning("Windows is not supported at this time.")
+    else:
+        setup_script = dpk_files_dir + "/setup/psft-dpk-setup.sh"
+        subprocess.run(["sh", setup_script, "--silent", "--dpk_src_dir " + dpk_files_dir, "--response_file " + dpk_files_dir + "/response.cfg", "--no_puppet_run"])
 
 def yaml():
     # & ./powershell/provision-yaml.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
@@ -138,6 +140,10 @@ def main():
     banner()
     setup_filesystem()
     # download()
+    # TODO
+    dpk_files_dir = userdata_dir + "/11"
+    psft_base_dir = "/u01/app/oracle/product"
+    puppet_home   = psft_base_dir + "/hostname/dpk"
     bootstrap(dpk_files_dir, psft_base_dir, puppet_home)
     # yaml()
     # puppet_apply()
