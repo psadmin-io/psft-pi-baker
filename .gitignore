@@ -1,2 +1,3 @@
 # downloads,etc can go in userdata directory, dont' include
 userdata/*
+!userdata/README.md
