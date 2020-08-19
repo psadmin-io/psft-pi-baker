@@ -76,9 +76,47 @@ def download():
     # & ./powershell/provision-download.ps1 -MOS_USERNAME "$MOS_USERNAME" -MOS_PASSWORD "$MOS_PASSWORD" -PATCH_ID "$PI_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" >> $log
     logging.info("Downloading DPK zip files. - TODO")
 
-def bootstrap():
-    # & ./powershell/provision-bootstrap-ps.ps1 -PATCH_ID "$PI_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
-    logging.info("TODO")
+def bootstrap(dpk_files_dir, psft_base_dir, puppet_home):
+    logging.info("Running DPK Bootstrap")
+
+    # TODO - assumes zips are already unpacked in `download` step before
+
+    # determine_tools_version
+    #     # tools_version = $(Get-Content ${DPK_INSTALL}/setup/bs-manifest | select-string "version" | % {$_.line.split("=")[1]})
+    #     # $TOOLS_MAJOR_VERSION = $TOOLS_VERSION.split(".")[0]
+    #     # $TOOLS_MINOR_VERSION = $TOOLS_VERSION.split(".")[1]
+    #     # $TOOLS_PATCH_VERSION = $TOOLS_VERSION.split(".")[2]
+
+    # generate_response_file
+    logging.debug("Generating response file")
+    rsp_file = open(dpk_files_dir + "/response.cfg") # TODO mode?
+    responses = [
+        "psft_base_dir = \"${PSFT_BASE_DIR}\"",
+        "install_type = \"PUM\"",
+        "env_type  = \"fulltier\"",
+        "db_type = \"DEMO\"",
+        "db_name = \"PSFTDB\"",
+        "db_service_name = \"PSFTDB\"",
+        "db_host = \"localhost\"",
+        "admin_pwd = \"Passw0rd_\"",
+        "connect_pwd = \"peop1e\"",
+        "access_pwd  = \"SYSADM\"",
+        "opr_pwd = \"PS\"",
+        "domain_conn_pwd = \"P@ssw0rd_\"",
+        "weblogic_admin_pwd  = \"Passw0rd#\"",
+        "webprofile_user_pwd = \"PTWEBSERVER\"",
+        "gw_user_pwd = \"password\"",
+    ]
+    rsp_file.writelines(responses)
+
+# execute_psft_dpk_setup
+    # logging.debug("Executing DPK Setup")
+
+#             . "${DPK_INSTALL}/setup/psft-dpk-setup.bat" `
+#             --silent `
+#             --dpk_src_dir "${DPK_INSTALL}" `
+#             --response_file "${DPK_INSTALL}/response.cfg" `
+#             --no_puppet_run
 
 def yaml():
     # & ./powershell/provision-yaml.ps1 -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" -PSFT_BASE_DIR "c:/psft" -PUPPET_HOME "c:/psft/dpk/puppet" >> $log
@@ -99,12 +137,12 @@ def done():
 def main():
     banner()
     setup_filesystem()
-    download()
-    bootstrap()
-    yaml()
-    puppet_apply()
-    util()
-    done()
+    # download()
+    bootstrap(dpk_files_dir, psft_base_dir, puppet_home)
+    # yaml()
+    # puppet_apply()
+    # util()
+    # done()
 
 if __name__ == "__main__":
     main()
