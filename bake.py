@@ -106,6 +106,7 @@ def bootstrap(dpk_files_dir, psft_base_dir, puppet_home):
         "weblogic_admin_pwd  = \"Passw0rd#\"\n",
         "webprofile_user_pwd = \"PTWEBSERVER\"\n",
         "gw_user_pwd = \"password\"\n",
+        "gw_keystore_pwd = \"password\"\n",
     ]
     rsp_file.writelines(responses)
     rsp_file.close()
