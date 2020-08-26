@@ -134,7 +134,7 @@ def bootstrap():
         setup_script = __m.dpk_files_dir + "/setup/psft-dpk-setup.sh"
         dpk_logfile = open(__m.userdata_dir + "/psft-dpk-setup.log","w")
         try:
-            subprocess.run(["sh", setup_script, "--silent", "--dpk_src_dir " + __m.dpk_files_dir, "--response_file " + __m.dpk_files_dir + "/response.cfg", "--no_puppet_run"], stdout=__m.dpk_logfile, stderr=dpk_logfile, check=True)
+            subprocess.run(["sh", setup_script, "--silent", "--dpk_src_dir " + __m.dpk_files_dir, "--response_file " + dpk_files_dir + "/response.cfg", "--no_puppet_run"], stdout=.dpk_logfile, stderr=dpk_logfile, check=True)
         except:
             logging.error("DPK bootstrap script failed.")
 
