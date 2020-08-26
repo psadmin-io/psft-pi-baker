@@ -1,9 +1,13 @@
+#!/usr/bin/python3
+
 import os
 import logging
 import subprocess
 
 from shutil import copyfile
 from pathlib import Path
+
+# TODO - can these variables be "global" like this? - I think so, but we should refactor to minimize
 
 MOS_USERNAME = os.getenv("MOS_USERNAME")
 MOS_PASSWORD = os.getenv("MOS_PASSWORD")
@@ -42,7 +46,7 @@ rootLogger.addHandler(consoleHandler)
 def banner():
     logging.debug("Banner start")
 
-    print("banner goes here TODO")
+    logging.info("banner goes here TODO")
 
     logging.debug("Banner stop")
 
@@ -74,7 +78,7 @@ def setup_filesystem():
 
 def download():
     # & ./powershell/provision-download.ps1 -MOS_USERNAME "$MOS_USERNAME" -MOS_PASSWORD "$MOS_PASSWORD" -PATCH_ID "$PI_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" >> $log
-    logging.info("Downloading DPK zip files. - TODO")
+    logging.info("Downloading DPK zip files. - SKIP TODO")
 
 def bootstrap(dpk_files_dir, psft_base_dir, puppet_home):
     logging.info("Running DPK Bootstrap")
@@ -197,11 +201,11 @@ def main():
     
     banner()
     setup_filesystem()
-    # download()
-    #bootstrap(dpk_files_dir, psft_base_dir, puppet_home)
+    download()
+    bootstrap(dpk_files_dir, psft_base_dir, puppet_home)
     yaml(puppet_home)
     puppet_apply(puppet_home)
-    # util()
+    util()
     done()
 
 if __name__ == "__main__":
