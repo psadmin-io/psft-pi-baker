@@ -7,63 +7,68 @@ import subprocess
 from shutil import copyfile
 from pathlib import Path
 
-# TODO - can these variables be "global" like this? - I think so, but we should refactor to minimize
+class Baker:
+    # empty class used for module level variable scope
+    pass
 
-MOS_USERNAME = os.getenv("MOS_USERNAME")
-MOS_PASSWORD = os.getenv("MOS_PASSWORD")
-PI_PATCH_ID  = os.getenv("PI_PATCH_ID")
-ELK_PATCH_ID = os.getenv("ELK_PATCH_ID")
+__m = Baker()
 
-files_dir = os.path.dirname(os.path.realpath(__file__)) + "/files"
-userdata_dir = os.path.dirname(os.path.realpath(__file__)) + "/userdata"
-custom_dir = userdata_dir + "/custom"
+def init():
+    __m.mos_username  = os.getenv("MOS_USERNAME")
+    __m.mos_password  = os.getenv("MOS_PASSWORD")
+    __m.pi_patch_id   = os.getenv("PI_PATCH_ID")
+    __m.elk_patch_id  = os.getenv("ELK_PATCH_ID")
 
-# Logging
-logpath = userdata_dir
-logfile = "psft-pi-baker.log"
-loglevel = logging.DEBUG 
-rootLogger = logging.getLogger()
-rootLogger.setLevel(loglevel)
+    __m.files_dir     = os.path.dirname(os.path.realpath(__file__)) + "/files"
+    __m.userdata_dir  = os.path.dirname(os.path.realpath(__file__)) + "/userdata"
+    __m.custom_dir    = __m.userdata_dir + "/custom"
+    __m.psft_base_dir = "/u01/app/oracle/product"
 
-fileHandler = logging.FileHandler("{0}/{1}".format(logpath, logfile))
-fileFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
-fileHandler.setFormatter(fileFormatter)
-fileHandler.setLevel(loglevel)
-rootLogger.addHandler(fileHandler)
+    __m.dpk_files_dir = __m.userdata_dir + "/11"
+    __m.dpk_dir       = __m.psft_base_dir + "/dpk" # TODO - actually use hostname here, like CM does?
+    __m.home_dir      = __m.psft_base_dir + "/hostname/home" # TODO - actually use hostname here, like CM does?
+    __m.cfg_dir       = __m.psft_base_dir + "/hostname/ps_cfg_home" # TODO - actually use hostname here, like CM does?
+    __m.puppet_home   = __m.dpk_dir + "/puppet" # TODO - install dpk/ in 
 
-consoleHandler = logging.StreamHandler()
-consoleFormatter = logging.Formatter("[%(levelname)-5.5s]  %(message)s")
-consoleHandler.setFormatter(consoleFormatter)
-consoleHandler.setLevel(loglevel)
-rootLogger.addHandler(consoleHandler)
 
-# CRITICAL 50
-# ERROR    40
-# WARNING  30
-# INFO     20
-# DEBUG    10
+    # Logging
+    logpath = __m.userdata_dir
+    logfile = "psft-pi-baker.log"
+    loglevel = logging.DEBUG 
+    rootLogger = logging.getLogger()
+    rootLogger.setLevel(loglevel)
+
+    fileHandler = logging.FileHandler("{0}/{1}".format(logpath, logfile))
+    fileFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+    fileHandler.setFormatter(fileFormatter)
+    fileHandler.setLevel(loglevel)
+    rootLogger.addHandler(fileHandler)
+
+    consoleHandler = logging.StreamHandler()
+    consoleFormatter = logging.Formatter("[%(levelname)-5.5s]  %(message)s")
+    consoleHandler.setFormatter(consoleFormatter)
+    consoleHandler.setLevel(loglevel)
+    rootLogger.addHandler(consoleHandler)
+
+    # CRITICAL 50
+    # ERROR    40
+    # WARNING  30
+    # INFO     20
+    # DEBUG    10
 
 def banner():
-    logging.debug("Banner start")
-
     logging.info("banner goes here TODO")
 
-    logging.debug("Banner stop")
-
 def setup_filesystem():
-
-# TODO
-#sudo yum -y install oracle-database-preinstall-19c glibc-devel
-
     try:
-        logging.debug("Create base directory, if needed.")
-        Path(psft_base_dir).mkdir(parents=True, exist_ok=True) # TODO - mode?
+        logging.debug("Create base directory, if needed." + __m.psft_base_dir)
+        Path(__m.psft_base_dir).mkdir(parents=True, exist_ok=True) # TODO - mode?
         logging.debug("Create dpk directory, if needed.")
-        Path(dpk_dir).mkdir(parents=True, exist_ok=True) # TODO - mode?
+        Path(__m.dpk_dir).mkdir(parents=True, exist_ok=True) # TODO - mode?
         logging.debug("Create home directory, if needed.")
-        Path(home_dir).mkdir(parents=True, exist_ok=True) # TODO - mode?
+        Path(__m.home_dir).mkdir(parents=True, exist_ok=True) # TODO - mode?
         logging.debug("Create PS_CFG_HOME directory, if needed.")
-        Path(cfg_dir).mkdir(parents=True, exist_ok=True) # TODO - mode?
+        Path(__m.cfg_dir).mkdir(parents=True, exist_ok=True) # TODO - mode?
 
         # copyfile(files_dir + "/vagabond.json",userdata_dir) TODO
         # psft_cust.yaml? TODO
@@ -76,11 +81,16 @@ def setup_filesystem():
         logging.error("There was an issue setting up the file system.")
         logging.error(e)
 
+def setup_packages():
+    logging.info("TODO - make sure required packages are intalled!")
+    # TODO
+    #sudo yum -y install oracle-database-preinstall-19c glibc-devel
+
 def download():
     # & ./powershell/provision-download.ps1 -MOS_USERNAME "$MOS_USERNAME" -MOS_PASSWORD "$MOS_PASSWORD" -PATCH_ID "$PI_PATCH_ID" -DPK_INSTALL "c:/psft/dpk/downloads/$PI_PATCH_ID" >> $log
     logging.info("Downloading DPK zip files. - SKIP TODO")
 
-def bootstrap(dpk_files_dir, psft_base_dir, puppet_home):
+def bootstrap():
     logging.info("Running DPK Bootstrap")
 
     # TODO - assumes zips are already unpacked in `download` step before
@@ -93,9 +103,9 @@ def bootstrap(dpk_files_dir, psft_base_dir, puppet_home):
 
     # generate_response_file
     logging.debug("Generating response file")
-    rsp_file = open(dpk_files_dir + "/response.cfg","w") 
+    rsp_file = open(__m.dpk_files_dir + "/response.cfg","w") 
     responses = [
-        "psft_base_dir = \"" + psft_base_dir + "\"\n",
+        "psft_base_dir = \"" + __m.psft_base_dir + "\"\n",
         "install_type = \"PUM\"\n",
         "env_type  = \"fulltier\"\n",
         "db_type = \"DEMO\"\n",
@@ -121,19 +131,19 @@ def bootstrap(dpk_files_dir, psft_base_dir, puppet_home):
     if os.name == 'nt':
         logging.warning("Windows is not supported at this time.")
     else:
-        setup_script = dpk_files_dir + "/setup/psft-dpk-setup.sh"
-        dpk_logfile = open(userdata_dir + "/psft-dpk-setup.log","w")
+        setup_script = __m.dpk_files_dir + "/setup/psft-dpk-setup.sh"
+        dpk_logfile = open(__m.userdata_dir + "/psft-dpk-setup.log","w")
         try:
-            subprocess.run(["sh", setup_script, "--silent", "--dpk_src_dir " + dpk_files_dir, "--response_file " + dpk_files_dir + "/response.cfg", "--no_puppet_run"], stdout=dpk_logfile, stderr=dpk_logfile, check=True)
+            subprocess.run(["sh", setup_script, "--silent", "--dpk_src_dir " + __m.dpk_files_dir, "--response_file " + __m.dpk_files_dir + "/response.cfg", "--no_puppet_run"], stdout=__m.dpk_logfile, stderr=dpk_logfile, check=True)
         except:
             logging.error("DPK bootstrap script failed.")
 
-def yaml(puppet_home):
+def yaml():
     logging.info("Copying psft_customizations.yaml")
     # TODO assuming data directory is there, add error check
-    copyfile(custom_dir + "/psft_customizations.yaml", puppet_home + "/production/data/psft_customizations.yaml")
+    copyfile(__m.custom_dir + "/psft_customizations.yaml", __m.puppet_home + "/production/data/psft_customizations.yaml")
 
-def puppet_apply(puppet_home):
+def puppet_apply():
     logging.info("TODO")
   
     # execute_puppet_apply
@@ -142,8 +152,8 @@ def puppet_apply(puppet_home):
     # $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
         
     try:
-        dpk_logfile = open(userdata_dir + "/psft-dpk-apply.log","w")
-        subprocess.run(["sudo","/opt/puppetlabs/bin/puppet", "apply", puppet_home + "/production/manifests/site.pp", "--confdir=" + puppet_home, "--trace", "--debug"], check=True, stdout=dpk_logfile, stderr=dpk_logfile)
+        dpk_logfile = open(__m.userdata_dir + "/psft-dpk-apply.log","w")
+        subprocess.run(["sudo","/opt/puppetlabs/bin/puppet", "apply", __m.puppet_home + "/production/manifests/site.pp", "--confdir=" +__m.puppet_home, "--trace", "--debug"], check=True, stdout=dpk_logfile, stderr=dpk_logfile)
         #subprocess.run(["sudo","/opt/puppetlabs/bin/puppet", "--version"], check=True, stdout=dpk_logfile, stderr=dpk_logfile)
     except:
         logging.error("Puppet apply failed.")
@@ -185,26 +195,18 @@ def util():
 # }  choco install VSCode -y
 # 	choco install git -y
 
-
-
 def done():
     logging.info("Done.")
 
-def main():
-    # TODO
-    psft_base_dir = "/u01/app/oracle/product"
-    dpk_files_dir = userdata_dir + "/11"
-    dpk_dir       = psft_base_dir + "/dpk" # TODO - actually use hostname here, like CM does?
-    home_dir      = psft_base_dir + "/hostname/home" # TODO - actually use hostname here, like CM does?
-    cfg_dir       = psft_base_dir + "/hostname/ps_cfg_home" # TODO - actually use hostname here, like CM does?
-    puppet_home   = dpk_dir + "/puppet" # TODO - install dpk/ in 
-    
+def main():    
+    init()
     banner()
     setup_filesystem()
+    setup_packages()
     download()
-    bootstrap(dpk_files_dir, psft_base_dir, puppet_home)
-    yaml(puppet_home)
-    puppet_apply(puppet_home)
+    bootstrap()
+    yaml()
+    puppet_apply()
     util()
     done()
 
